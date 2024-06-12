@@ -150,9 +150,9 @@ export function Model(props) {
       <mesh
         geometry={nodes.Cube004.geometry}
         material={nodes.Cube004.material}
-        position={[10.892, 3, -52.699]}
+        position={[12.035, 3, -53.036]}
         rotation={[0, -0.42, 0]}
-        scale={[1.271, 1, 1.059]}
+        scale={[1.629, 1.225, 1.225]}
       />
       <mesh
         geometry={nodes.circularRoom.geometry}
@@ -219,11 +219,11 @@ export function Model(props) {
         position={[16.643, 0, -35.363]}
       />
       <mesh
-        geometry={nodes.Cube016.geometry}
+        geometry={nodes.Canvas01.geometry}
         material={materials.Canvas001}
-        position={[10.892, 3, -52.699]}
+        position={[12.035, 3, -53.036]}
         rotation={[0, -0.42, 0]}
-        scale={[1.27, 1, 1.059]}
+        scale={[1.63, 1.225, 1.225]}
       />
       <mesh
         geometry={nodes.entranceRoof.geometry}
@@ -241,34 +241,6 @@ export function Model(props) {
         position={[-1.231, 5.329, -29.409]}
       />
       <mesh
-        geometry={nodes.Cube018.geometry}
-        material={nodes.Cube018.material}
-        position={[2.256, 3, -70.992]}
-        rotation={[0, 0.351, 0]}
-        scale={[1.271, 1, 1.059]}
-      />
-      <mesh
-        geometry={nodes.Cube025.geometry}
-        material={materials.Canvas001}
-        position={[2.256, 3, -70.992]}
-        rotation={[0, 0.351, 0]}
-        scale={[1.27, 1, 1.059]}
-      />
-      <mesh
-        geometry={nodes.Cube001.geometry}
-        material={nodes.Cube001.material}
-        position={[10.536, 3, -89.655]}
-        rotation={[0, -0.329, 0]}
-        scale={[1.271, 1, 1.059]}
-      />
-      <mesh
-        geometry={nodes.Cube017.geometry}
-        material={materials.Canvas001}
-        position={[10.536, 3, -89.655]}
-        rotation={[0, -0.329, 0]}
-        scale={[1.27, 1, 1.059]}
-      />
-      <mesh
         geometry={nodes.Cube023.geometry}
         material={materials.benches}
         position={[12.409, 0.235, -31.067]}
@@ -281,60 +253,88 @@ export function Model(props) {
         rotation={[-Math.PI, 0, 0]}
       />
       <mesh
+        geometry={nodes.Cube002.geometry}
+        material={nodes.Cube002.material}
+        position={[-0.069, 3, -72.55]}
+        rotation={[0, 0.413, 0]}
+        scale={[1.629, 1.225, 1.225]}
+      />
+      <mesh
+        geometry={nodes.Canvas01001.geometry}
+        material={materials.Canvas001}
+        position={[-0.069, 3, -72.55]}
+        rotation={[0, 0.413, 0]}
+        scale={[1.63, 1.225, 1.225]}
+      />
+      <mesh
+        geometry={nodes.Cube003.geometry}
+        material={nodes.Cube003.material}
+        position={[10.63, 3, -92.398]}
+        rotation={[0, -0.45, 0]}
+        scale={[1.629, 1.225, 1.225]}
+      />
+      <mesh
+        geometry={nodes.Canvas01002.geometry}
+        material={materials.Canvas001}
+        position={[10.63, 3, -92.398]}
+        rotation={[0, -0.45, 0]}
+        scale={[1.63, 1.225, 1.225]}
+      />
+      <mesh
+        geometry={nodes.Cube001.geometry}
+        material={nodes.Cube001.material}
+        position={[-10.216, 3, -110.056]}
+        rotation={[0, 0.554, 0]}
+        scale={[1.629, 1.225, 1.225]}
+      />
+      <mesh
+        geometry={nodes.Canvas01003.geometry}
+        material={materials.Canvas001}
+        position={[-10.216, 3, -110.056]}
+        rotation={[0, 0.554, 0]}
+        scale={[1.63, 1.225, 1.225]}
+      />
+      <mesh
         geometry={nodes.Cube005.geometry}
         material={nodes.Cube005.material}
-        position={[-7.389, 3, -106.224]}
-        rotation={[0, 0.59, 0]}
-        scale={[1.271, 1, 1.059]}
+        position={[-30.974, 3, -89.757]}
+        rotation={[-Math.PI, 0.859, -Math.PI]}
+        scale={[1.629, 1.225, 1.225]}
+      />
+      <mesh
+        geometry={nodes.Canvas01004.geometry}
+        material={materials.Canvas001}
+        position={[-30.974, 3, -89.757]}
+        rotation={[-Math.PI, 0.859, -Math.PI]}
+        scale={[1.63, 1.225, 1.225]}
       />
       <mesh
         geometry={nodes.Cube006.geometry}
+        material={nodes.Cube006.material}
+        position={[-59.154, 3, -98.602]}
+        rotation={[0, 1.48, 0]}
+        scale={[1.629, 1.225, 1.225]}
+      />
+      <mesh
+        geometry={nodes.Canvas01005.geometry}
         material={materials.Canvas001}
-        position={[-7.389, 3, -106.224]}
-        rotation={[0, 0.59, 0]}
-        scale={[1.27, 1, 1.059]}
+        position={[-59.154, 3, -98.602]}
+        rotation={[0, 1.48, 0]}
+        scale={[1.63, 1.225, 1.225]}
       />
       <mesh
         geometry={nodes.Cube007.geometry}
         material={nodes.Cube007.material}
-        position={[-30.857, 3, -90.14]}
-        rotation={[-Math.PI, 0.955, -Math.PI]}
-        scale={[1.271, 1, 1.059]}
+        position={[-64.587, 3, -118.668]}
+        rotation={[0, 0.709, 0]}
+        scale={[1.629, 1.225, 1.225]}
       />
       <mesh
-        geometry={nodes.Cube019.geometry}
+        geometry={nodes.Canvas01006.geometry}
         material={materials.Canvas001}
-        position={[-30.857, 3, -90.14]}
-        rotation={[-Math.PI, 0.955, -Math.PI]}
-        scale={[1.27, 1, 1.059]}
-      />
-      <mesh
-        geometry={nodes.Cube002.geometry}
-        material={nodes.Cube002.material}
-        position={[-58.277, 3, -98.212]}
-        rotation={[0, 1.471, 0]}
-        scale={[1.271, 1, 1.059]}
-      />
-      <mesh
-        geometry={nodes.Cube003.geometry}
-        material={materials.Canvas001}
-        position={[-58.277, 3, -98.212]}
-        rotation={[0, 1.471, 0]}
-        scale={[1.27, 1, 1.059]}
-      />
-      <mesh
-        geometry={nodes.Cube008.geometry}
-        material={nodes.Cube008.material}
-        position={[-63.811, 3, -118.698]}
-        rotation={[0, 0.638, 0]}
-        scale={[1.271, 1, 1.059]}
-      />
-      <mesh
-        geometry={nodes.Cube020.geometry}
-        material={materials.Canvas001}
-        position={[-63.811, 3, -118.698]}
-        rotation={[0, 0.638, 0]}
-        scale={[1.27, 1, 1.059]}
+        position={[-64.587, 3, -118.668]}
+        rotation={[0, 0.709, 0]}
+        scale={[1.63, 1.225, 1.225]}
       />
       <mesh
         geometry={nodes.Sorento_Sculpture.geometry}
@@ -344,8 +344,8 @@ export function Model(props) {
       <mesh
         geometry={nodes.Human_walking_18m.geometry}
         material={materials.benches}
-        position={[7.853, -0.045, -44.794]}
-        rotation={[Math.PI, 0, Math.PI]}
+        position={[15.009, -0.045, -46.33]}
+        rotation={[Math.PI, -0.302, Math.PI]}
         scale={1.095}
       />
       <mesh

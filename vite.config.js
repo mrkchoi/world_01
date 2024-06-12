@@ -5,7 +5,7 @@ import glsl from 'vite-plugin-glsl';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  assetsInclude: ['**/*.gltf', '**/*.glb'],
+  assetsInclude: ['**/*.gltf', '**/*.glb', '**/*.exr'],
   plugins: [react(), eslint(), glsl()],
   server: {
     open: true,

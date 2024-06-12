@@ -4,6 +4,8 @@ import { Environment, PerspectiveCamera, Sky } from '@react-three/drei';
 import { Perf } from 'r3f-perf';
 import { Fog } from 'three';
 
+import nightSky from '/assets/hdri/moonless_golf_4k.exr';
+
 function Experience() {
   return (
     <>
@@ -35,9 +37,16 @@ function Experience() {
       <axesHelper args={[50]} />
       {/* <gridHelper args={[1000, 1000, 'white', 'gray']} /> */}
       <Scene />
+      {/* <Environment files={nightSky} /> */}
       <Environment preset="city" />
-      <Sky castShadow={true} />
-      <color attach="background" args={['#222222']} />
+      <Sky
+        castShadow={true}
+        distance={1000}
+        azimuth={0.55}
+        turbidity={0}
+        rayleigh={0.1}
+      />
+      <color attach="background" args={['#b2dce1']} />
       <fog attach="fog" args={['lightgrey', 100, 200]} />
     </>
   );
