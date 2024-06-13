@@ -4,11 +4,11 @@ Command: npx gltfjsx@6.2.18 portfolio03.glb
 */
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useGLTF } from '@react-three/drei';
+import { MeshReflectorMaterial, useGLTF } from '@react-three/drei';
 import { OrbitControls } from '../util/OrbitControlsCustom';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { useFrame, useThree } from '@react-three/fiber';
+import { render, useFrame, useThree } from '@react-three/fiber';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import {
@@ -24,12 +24,13 @@ import { ACTIONS, CharacterControls } from '../util/characterControls';
 import { v4 as uuidv4 } from 'uuid';
 import { Fluid } from '@alienkitty/alien.js/three';
 import videoSource from '/assets/video/zajno_showreel.mp4';
+import floorTexture from '/assets/textures/cineshader_floor.jpeg';
 
 const MODEL_URL = '/assets/models/portfolio04.glb';
 const params = {
   firstPerson: false,
-  displayCollider: true,
-  displayBVH: true,
+  displayCollider: false,
+  displayBVH: false,
   visualizeDepth: 10,
   gravity: -50,
   playerWalkSpeed: 10, // 10
@@ -45,22 +46,21 @@ const params = {
   // },
   // startPosition: {
   //   // outdoors front
-  //   x: 58.594515680863005,
+  //   x: 13.86650411337954,
   //   y: 0,
-  //   z: 136.63204546532134,
+  //   z: 127.84643452606501,
   // },
   // startPosition: {
   //   // outdoors back
-  //   x: -28.1773978017061,
-  //   y: 0,
-  //   z: -30.435949135844357,
+  //   x: -75.87103553276128,
+  //   y: 2,
+  //   z: -41.36782889639384,
   // },
   startPosition: {
-    // indoors
-    x: 65.00576756540369,
+    // indoors entrance
+    x: 24.96,
     y: 0,
-    // y: -7.583553014526367,
-    z: 77.45698842326485,
+    z: 75.35,
   },
 };
 
@@ -98,13 +98,15 @@ function Model(props) {
   const { displayCollider, displayBVH, visualizeDepth, gravity } = useControls(
     'Scene',
     {
-      displayCollider: true,
-      displayBVH: true,
+      displayCollider: false,
+      displayBVH: false,
       visualizeDepth: { value: 10, min: 1, max: 20, step: 1 },
       gravity: { value: -30, min: -100, max: 100, step: 1 },
     },
     { collapsed: true }
   );
+
+  const skySphere = useRef(null);
 
   const { iterate, density, velocity, pressure, curl, radius } = useControls(
     'Fluid',
@@ -148,7 +150,7 @@ function Model(props) {
   useEffect(() => {
     const handleMouseMove = (e) => {
       // if pointer is down, don't do anything
-      if (e.buttons) return;
+      // if (e.buttons) return;
       const event = {
         x: (e.clientX / window.innerWidth) * 2 - 1,
         y: -(e.clientY / window.innerHeight) * 2 + 1,
@@ -318,8 +320,8 @@ function Model(props) {
       })
     );
 
-    const axesHelper = new THREE.AxesHelper(1);
-    playerCapsule.add(axesHelper);
+    // const axesHelper = new THREE.AxesHelper(1);
+    // playerCapsule.add(axesHelper);
 
     const group = new THREE.Group();
     group.add(playerCapsule);
@@ -549,12 +551,20 @@ function Model(props) {
     return texture;
   }, [video]);
 
+  const floorTextureMap = useMemo(() => {
+    const texture = new THREE.TextureLoader().load(floorTexture);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(10, 10);
+    return texture;
+  }, []);
+
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
       uVideoTexture: { value: videoTexture },
       uFluid: { value: null },
-      uRGBShift: { value: 1 },
+      // uRGBShift: { value: 1 },
     }),
     []
   );
@@ -574,7 +584,7 @@ function Model(props) {
         uniform float uTime;
         uniform sampler2D uVideoTexture;
         uniform sampler2D uFluid;
-        uniform int uRGBShift;
+        // uniform int uRGBShift;
 
         varying vec2 vUv;
 
@@ -592,6 +602,27 @@ function Model(props) {
           // gl_FragColor = vec4(vUv, 1.0, 1.0);
         }
       `,
+    });
+  }, []);
+
+  // const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(512);
+  // cubeRenderTarget.texture.type = THREE.HalfFloatType;
+
+  // useEffect(() => {
+  //   if (cubeRenderTarget.current) {
+  //     cubeRenderTarget.current.texture.type = THREE.HalfFloatType;
+  //   }
+  // }, []);
+  // const cubeCamera = new THREE.CubeCamera(0.1, 5000, cubeRenderTarget);
+  // scene.add(cubeCamera);
+
+  const reflectorMaterial = useMemo(() => {
+    return new THREE.MeshStandardMaterial({
+      color: 'white',
+      roughness: 0,
+      metalness: 0.5,
+      // side: THREE.DoubleSide,
+      // envMap: cubeRenderTarget.texture,
     });
   }, []);
 
@@ -638,6 +669,10 @@ function Model(props) {
       fluid.current.radius = radius;
       fluid.current.update();
     }
+
+    // if (cubeCamera) {
+    //   cubeCamera.update(gl, scene);
+    // }
   });
 
   return (
@@ -663,12 +698,26 @@ function Model(props) {
               geometry={characterNodes.Ch45.geometry}
               // material={characterMaterials.Ch45_Body}
               skeleton={characterNodes.Ch45.skeleton}
+              castShadow
+              receiveShadow
             >
+              {/* <meshLambertMaterial /> */}
               <meshStandardMaterial
+                color="white"
+                // map={videoTexture}
+                roughness={0}
+                metalness={1}
+                emissive={'#ddd'}
+                emissiveIntensity={0.3}
+                wireframe={true}
+                wireframeLinewidth={0.1}
+              />
+              {/* <meshToonMaterial /> */}
+              {/* <meshStandardMaterial
                 color="white"
                 map={videoTexture}
                 roughness={1}
-              />
+              /> */}
             </skinnedMesh>
           </group>
         </group>
@@ -707,6 +756,7 @@ function Model(props) {
         <mesh
           geometry={nodes.Icosphere001.geometry}
           material={materials.sculpture}
+          castShadow
           position={[-149.762, 13.073, -210.081]}
           rotation={[-1.156, 0, 0]}
         />
@@ -741,16 +791,22 @@ function Model(props) {
         <mesh
           geometry={nodes.Circle.geometry}
           material={materials.floorInterior}
+          // material={reflectorMaterial}
           position={[-1.738, 0.001, -30.89]}
+          receiveShadow
         />
         <mesh
           geometry={nodes.Plane003.geometry}
           material={materials.floorInterior}
+          // material={reflectorMaterial}
+          receiveShadow
           position={[6.446, 0.001, -60.331]}
         />
         <mesh
           geometry={nodes.BezierCurve.geometry}
           material={materials.floorInterior}
+          // material={reflectorMaterial}
+          receiveShadow
           position={[-5.586, 0.001, -86.258]}
         />
         <mesh
@@ -789,8 +845,36 @@ function Model(props) {
         <mesh
           geometry={nodes.floor.geometry}
           material={materials.floorInterior}
+          // material={reflectorMaterial}
           position={[0.183, 0, -19.383]}
+          receiveShadoww
         />
+        <mesh
+          receiveShadow
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[0.183, 0.1, -19.383]}
+        >
+          <planeGeometry args={[300, 300]} />
+          <MeshReflectorMaterial
+            blur={1024}
+            // blur={2048}
+            resolution={1024}
+            mixBlur={100}
+            mixStrength={60}
+            roughness={10}
+            depthScale={1.2}
+            minDepthThreshold={0.4}
+            maxDepthThreshold={1.4}
+            color="#202020"
+            metalness={0}
+            // normalMap={floorTextureMap}
+            aoMap={floorTextureMap}
+            aoMapIntensity={2}
+            // bumpMap={floorTextureMap}
+            // bumpScale={1}
+            // normalScale={[0.1, 0.1]}
+          />
+        </mesh>
         <mesh
           geometry={nodes.pedestal02.geometry}
           material={materials.circlePlatform}
@@ -799,22 +883,23 @@ function Model(props) {
         <mesh
           geometry={nodes.entranceSphere.geometry}
           material={materials.sculpture}
+          castShadow
           position={[-5.211, 1.668, -30.827]}
         />
         <mesh
           geometry={nodes.entranceRoofCutout.geometry}
-          material={materials.walls}
-          position={[-5.209, 7.766, -30.899]}
+          material={materials.ringLight}
+          position={[-5.209, 7.626, -30.899]}
+          scale={[1, 0.45, 1]}
         />
         <mesh
           geometry={nodes.straightRoom.geometry}
           material={materials.walls}
-          // material={shaderMaterial}
           position={[6.191, -0.001, -41.53]}
         />
         <mesh
           geometry={nodes.Cube004.geometry}
-          material={nodes.Cube004.material}
+          material={materials.canvasBack}
           position={[12.035, 3, -53.036]}
           rotation={[0, -0.42, 0]}
           scale={[1.629, 1.225, 1.225]}
@@ -860,16 +945,17 @@ function Model(props) {
         />
         <mesh
           geometry={nodes.Cylinder004.geometry}
-          material={materials.walls}
-          position={[10.297, 13.829, -80.145]}
+          material={materials.ringLight}
+          position={[10.297, 13.869, -80.145]}
+          scale={[1, 0.907, 1]}
         />
         <mesh
           geometry={nodes.Cylinder005.geometry}
-          material={materials.walls}
+          material={materials.ringLight}
           position={[1.025, 13.875, -97.349]}
         />
         <mesh
-          geometry={nodes.Icosphere.geometry}
+          geometry={nodes['~'].geometry}
           material={materials.sculpture}
           position={[16.275, 0.664, -73.274]}
         />
@@ -920,8 +1006,8 @@ function Model(props) {
         />
         <mesh
           geometry={nodes.Cube002.geometry}
-          material={nodes.Cube002.material}
-          position={[-0.069, 3, -72.55]}
+          material={materials.canvasBack}
+          position={[-0.787, 3, -72.638]}
           rotation={[0, 0.413, 0]}
           scale={[1.629, 1.225, 1.225]}
         />
@@ -929,13 +1015,13 @@ function Model(props) {
           ref={canvas02}
           geometry={nodes.Canvas01001.geometry}
           material={shaderMaterial}
-          position={[-0.069, 3, -72.55]}
+          position={[-0.787, 3, -72.638]}
           rotation={[0, 0.413, 0]}
           scale={[1.63, 1.225, 1.225]}
         />
         <mesh
           geometry={nodes.Cube003.geometry}
-          material={nodes.Cube003.material}
+          material={materials.canvasBack}
           position={[10.63, 3, -92.398]}
           rotation={[0, -0.45, 0]}
           scale={[1.629, 1.225, 1.225]}
@@ -950,7 +1036,7 @@ function Model(props) {
         />
         <mesh
           geometry={nodes.Cube001.geometry}
-          material={nodes.Cube001.material}
+          material={materials.canvasBack}
           position={[-10.216, 3, -110.056]}
           rotation={[0, 0.554, 0]}
           scale={[1.629, 1.225, 1.225]}
@@ -965,7 +1051,7 @@ function Model(props) {
         />
         <mesh
           geometry={nodes.Cube005.geometry}
-          material={nodes.Cube005.material}
+          material={materials.canvasBack}
           position={[-30.974, 3, -89.757]}
           rotation={[-Math.PI, 0.859, -Math.PI]}
           scale={[1.629, 1.225, 1.225]}
@@ -980,7 +1066,7 @@ function Model(props) {
         />
         <mesh
           geometry={nodes.Cube006.geometry}
-          material={nodes.Cube006.material}
+          material={materials.canvasBack}
           position={[-59.154, 3, -98.602]}
           rotation={[0, 1.48, 0]}
           scale={[1.629, 1.225, 1.225]}
@@ -995,7 +1081,7 @@ function Model(props) {
         />
         <mesh
           geometry={nodes.Cube007.geometry}
-          material={nodes.Cube007.material}
+          material={materials.canvasBack}
           position={[-64.587, 3, -118.668]}
           rotation={[0, 0.709, 0]}
           scale={[1.629, 1.225, 1.225]}
@@ -1008,6 +1094,26 @@ function Model(props) {
           rotation={[0, 0.709, 0]}
           scale={[1.63, 1.225, 1.225]}
         />
+        <mesh
+          geometry={nodes.straightRoom001.geometry}
+          material={materials.ringLight}
+          position={[6.191, -0.001, -41.53]}
+        />
+        <mesh
+          geometry={nodes.circularRoom001.geometry}
+          material={materials.ringLight}
+          position={[-38.268, 0.726, -114.098]}
+          rotation={[0, -0.113, 0]}
+        />
+        <mesh
+          ref={skySphere}
+          geometry={nodes.skySphere.geometry}
+          // material={materials.skySphere}
+          position={[-13.16, 3.64, -115.662]}
+          scale={596.281}
+        >
+          <meshStandardMaterial color={'black'} />
+        </mesh>
         <mesh
           geometry={nodes.Sorento_Sculpture.geometry}
           material={materials.sculpture}

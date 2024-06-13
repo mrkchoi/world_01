@@ -139,8 +139,9 @@ export function Model(props) {
       />
       <mesh
         geometry={nodes.entranceRoofCutout.geometry}
-        material={materials.walls}
-        position={[-5.209, 7.766, -30.899]}
+        material={materials.ringLight}
+        position={[-5.209, 7.626, -30.899]}
+        scale={[1, 0.45, 1]}
       />
       <mesh
         geometry={nodes.straightRoom.geometry}
@@ -149,7 +150,7 @@ export function Model(props) {
       />
       <mesh
         geometry={nodes.Cube004.geometry}
-        material={nodes.Cube004.material}
+        material={materials.canvasBack}
         position={[12.035, 3, -53.036]}
         rotation={[0, -0.42, 0]}
         scale={[1.629, 1.225, 1.225]}
@@ -195,16 +196,17 @@ export function Model(props) {
       />
       <mesh
         geometry={nodes.Cylinder004.geometry}
-        material={materials.walls}
-        position={[10.297, 13.829, -80.145]}
+        material={materials.ringLight}
+        position={[10.297, 13.869, -80.145]}
+        scale={[1, 0.907, 1]}
       />
       <mesh
         geometry={nodes.Cylinder005.geometry}
-        material={materials.walls}
+        material={materials.ringLight}
         position={[1.025, 13.875, -97.349]}
       />
       <mesh
-        geometry={nodes.Icosphere.geometry}
+        geometry={nodes['~'].geometry}
         material={materials.sculpture}
         position={[16.275, 0.664, -73.274]}
       />
@@ -254,21 +256,21 @@ export function Model(props) {
       />
       <mesh
         geometry={nodes.Cube002.geometry}
-        material={nodes.Cube002.material}
-        position={[-0.069, 3, -72.55]}
+        material={materials.canvasBack}
+        position={[-0.787, 3, -72.638]}
         rotation={[0, 0.413, 0]}
         scale={[1.629, 1.225, 1.225]}
       />
       <mesh
         geometry={nodes.Canvas01001.geometry}
         material={materials.Canvas001}
-        position={[-0.069, 3, -72.55]}
+        position={[-0.787, 3, -72.638]}
         rotation={[0, 0.413, 0]}
         scale={[1.63, 1.225, 1.225]}
       />
       <mesh
         geometry={nodes.Cube003.geometry}
-        material={nodes.Cube003.material}
+        material={materials.canvasBack}
         position={[10.63, 3, -92.398]}
         rotation={[0, -0.45, 0]}
         scale={[1.629, 1.225, 1.225]}
@@ -282,7 +284,7 @@ export function Model(props) {
       />
       <mesh
         geometry={nodes.Cube001.geometry}
-        material={nodes.Cube001.material}
+        material={materials.canvasBack}
         position={[-10.216, 3, -110.056]}
         rotation={[0, 0.554, 0]}
         scale={[1.629, 1.225, 1.225]}
@@ -296,7 +298,7 @@ export function Model(props) {
       />
       <mesh
         geometry={nodes.Cube005.geometry}
-        material={nodes.Cube005.material}
+        material={materials.canvasBack}
         position={[-30.974, 3, -89.757]}
         rotation={[-Math.PI, 0.859, -Math.PI]}
         scale={[1.629, 1.225, 1.225]}
@@ -310,7 +312,7 @@ export function Model(props) {
       />
       <mesh
         geometry={nodes.Cube006.geometry}
-        material={nodes.Cube006.material}
+        material={materials.canvasBack}
         position={[-59.154, 3, -98.602]}
         rotation={[0, 1.48, 0]}
         scale={[1.629, 1.225, 1.225]}
@@ -324,7 +326,7 @@ export function Model(props) {
       />
       <mesh
         geometry={nodes.Cube007.geometry}
-        material={nodes.Cube007.material}
+        material={materials.canvasBack}
         position={[-64.587, 3, -118.668]}
         rotation={[0, 0.709, 0]}
         scale={[1.629, 1.225, 1.225]}
@@ -335,6 +337,23 @@ export function Model(props) {
         position={[-64.587, 3, -118.668]}
         rotation={[0, 0.709, 0]}
         scale={[1.63, 1.225, 1.225]}
+      />
+      <mesh
+        geometry={nodes.straightRoom001.geometry}
+        material={materials.ringLight}
+        position={[6.191, -0.001, -41.53]}
+      />
+      <mesh
+        geometry={nodes.circularRoom001.geometry}
+        material={materials.ringLight}
+        position={[-38.268, 0.726, -114.098]}
+        rotation={[0, -0.113, 0]}
+      />
+      <mesh
+        geometry={nodes.skySphere.geometry}
+        material={nodes.skySphere.material}
+        position={[-13.16, 3.64, -115.662]}
+        scale={-596.281}
       />
       <mesh
         geometry={nodes.Sorento_Sculpture.geometry}
