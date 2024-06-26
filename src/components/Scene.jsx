@@ -25,16 +25,25 @@ import { v4 as uuidv4 } from 'uuid';
 import { Fluid } from '@alienkitty/alien.js/three';
 import videoSource from '/assets/video/zajno_showreel.mp4';
 import floorTexture from '/assets/textures/cineshader_floor.jpeg';
+import tileTexture from '/assets/textures/Tiles076_4K-JPG_Color.jpg';
+import bakedFloor from '/assets/textures/baked/bakedFloor01.webp';
+import floorTextureBaked01 from '/assets/textures/baked/floor001_Bake1_CyclesBake_COMBINED.png';
 
-const MODEL_URL = '/assets/models/portfolio04.glb';
+var textureURL =
+  'https://s3-us-west-2.amazonaws.com/s.cdpn.io/17271/lroc_color_poles_1k.jpg';
+var displacementURL =
+  'https://s3-us-west-2.amazonaws.com/s.cdpn.io/17271/ldem_3_8bit.jpg';
+var worldURL = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/17271/hipp8_s.jpg';
+
+const MODEL_URL = '/assets/models/portfolio06.glb';
 const params = {
-  firstPerson: false,
+  firstPerson: true,
   displayCollider: false,
   displayBVH: false,
   visualizeDepth: 10,
   gravity: -50,
   playerWalkSpeed: 10, // 10
-  playerRunSpeed: 25, // 25
+  playerRunSpeed: 50, // 25
   playerJumpHeight: 20,
   physicsSteps: 5,
   cameraOffsetY: 1.5,
@@ -44,24 +53,30 @@ const params = {
   //   y: -7.57213251605731,
   //   z: 7.25489462321836,
   // },
-  // startPosition: {
-  //   // outdoors front
-  //   x: 13.86650411337954,
-  //   y: 0,
-  //   z: 127.84643452606501,
-  // },
+  startPosition: {
+    // outdoors front
+    x: 2,
+    y: 10,
+    z: 30.84643452606501,
+  },
   // startPosition: {
   //   // outdoors back
   //   x: -75.87103553276128,
   //   y: 2,
   //   z: -41.36782889639384,
   // },
-  startPosition: {
-    // indoors entrance
-    x: 24.96,
-    y: 0,
-    z: 75.35,
-  },
+  // startPosition: {
+  //   // indoors entrance
+  //   x: 24.96,
+  //   y: 20,
+  //   z: 75.35,
+  // },
+  // startPosition: {
+  //   // indoors entrance
+  //   x: -38,
+  //   y: 10,
+  //   z: -110,
+  // },
 };
 
 export const useStore = create((set) => ({
@@ -108,36 +123,36 @@ function Model(props) {
 
   const skySphere = useRef(null);
 
-  const { iterate, density, velocity, pressure, curl, radius } = useControls(
-    'Fluid',
-    {
-      iterate: { value: 3, min: 1, max: 10 },
-      density: { value: 0.95, min: 0, max: 1 },
-      velocity: { value: 0.98, min: 0, max: 1 },
-      pressure: { value: 0.8, min: 0, max: 1 },
-      curl: { value: 2.5, min: 0, max: 50 },
-      radius: { value: 0.3, min: 0.01, max: 0.5 },
-    },
-    { collapsed: true }
-  );
-  const canvas01 = useRef(null);
-  const canvas02 = useRef(null);
-  const canvas03 = useRef(null);
-  const canvas04 = useRef(null);
-  const canvas05 = useRef(null);
-  const canvas06 = useRef(null);
-  const canvas07 = useRef(null);
-  const mouse = useRef({
-    world: new THREE.Vector2(),
-    uv: new THREE.Vector2(),
-    isInit: false,
-  });
-  const raycaster = new THREE.Raycaster();
-  const fluid = useRef(
-    new Fluid(gl, {
-      curlStrength: 0,
-    })
-  );
+  // const { iterate, density, velocity, pressure, curl, radius } = useControls(
+  //   'Fluid',
+  //   {
+  //     iterate: { value: 3, min: 1, max: 10 },
+  //     density: { value: 0.95, min: 0, max: 1 },
+  //     velocity: { value: 0.98, min: 0, max: 1 },
+  //     pressure: { value: 0.8, min: 0, max: 1 },
+  //     curl: { value: 2.5, min: 0, max: 50 },
+  //     radius: { value: 0.3, min: 0.01, max: 0.5 },
+  //   },
+  //   { collapsed: true }
+  // );
+  // const canvas01 = useRef(null);
+  // const canvas02 = useRef(null);
+  // const canvas03 = useRef(null);
+  // const canvas04 = useRef(null);
+  // const canvas05 = useRef(null);
+  // const canvas06 = useRef(null);
+  // const canvas07 = useRef(null);
+  // const mouse = useRef({
+  //   world: new THREE.Vector2(),
+  //   uv: new THREE.Vector2(),
+  //   isInit: false,
+  // });
+  // const raycaster = new THREE.Raycaster();
+  // const fluid = useRef(
+  //   new Fluid(gl, {
+  //     curlStrength: 0,
+  //   })
+  // );
 
   // useEffect(() => {
   //   const fluidInstance = fluid.current;
@@ -147,68 +162,68 @@ function Model(props) {
   //   };
   // }, []);
 
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      // if pointer is down, don't do anything
-      // if (e.buttons) return;
-      const event = {
-        x: (e.clientX / window.innerWidth) * 2 - 1,
-        y: -(e.clientY / window.innerHeight) * 2 + 1,
-      };
+  // useEffect(() => {
+  //   const handleMouseMove = (e) => {
+  //     // if pointer is down, don't do anything
+  //     // if (e.buttons) return;
+  //     const event = {
+  //       x: (e.clientX / window.innerWidth) * 2 - 1,
+  //       y: -(e.clientY / window.innerHeight) * 2 + 1,
+  //     };
 
-      if (!mouse.current.isInit) {
-        mouse.current.isInit = true;
-        mouse.current.world.copy(event);
-        mouse.current.uv.copy(event);
-      }
+  //     if (!mouse.current.isInit) {
+  //       mouse.current.isInit = true;
+  //       mouse.current.world.copy(event);
+  //       mouse.current.uv.copy(event);
+  //     }
 
-      // console.log(mouse.current.world, mouse.current.uv);
-      raycaster.setFromCamera(mouse.current.world, camera);
-      const intersects = raycaster.intersectObjects([
-        canvas01.current,
-        canvas02.current,
-        canvas03.current,
-        canvas04.current,
-        canvas05.current,
-        canvas06.current,
-        canvas07.current,
-      ]);
+  //     // console.log(mouse.current.world, mouse.current.uv);
+  //     raycaster.setFromCamera(mouse.current.world, camera);
+  //     const intersects = raycaster.intersectObjects([
+  //       canvas01.current,
+  //       canvas02.current,
+  //       canvas03.current,
+  //       canvas04.current,
+  //       canvas05.current,
+  //       canvas06.current,
+  //       canvas07.current,
+  //     ]);
 
-      // console.log('intersects: ', intersects);
-      if (intersects.length > 0) {
-        const { x, y } = intersects[0].uv;
+  //     // console.log('intersects: ', intersects);
+  //     if (intersects.length > 0) {
+  //       const { x, y } = intersects[0].uv;
 
-        const deltaX = x - mouse.current.uv.x;
-        const deltaY = y - mouse.current.uv.y;
+  //       const deltaX = x - mouse.current.uv.x;
+  //       const deltaY = y - mouse.current.uv.y;
 
-        mouse.current.uv.copy(intersects[0].uv);
+  //       mouse.current.uv.copy(intersects[0].uv);
 
-        if (Math.abs(deltaX) || Math.abs(deltaY)) {
-          // console.log(x, y, deltaX, deltaY);
-          if (fluid.current) {
-            fluid.current.splats.push({
-              x: x,
-              y: y,
-              dx: deltaX * 5000,
-              dy: deltaY * 5000,
-            });
-          }
-        }
-      }
+  //       if (Math.abs(deltaX) || Math.abs(deltaY)) {
+  //         // console.log(x, y, deltaX, deltaY);
+  //         if (fluid.current) {
+  //           fluid.current.splats.push({
+  //             x: x,
+  //             y: y,
+  //             dx: deltaX * 5000,
+  //             dy: deltaY * 5000,
+  //           });
+  //         }
+  //       }
+  //     }
 
-      mouse.current.world.copy(event);
-    };
+  //     mouse.current.world.copy(event);
+  //   };
 
-    window.addEventListener('mousemove', handleMouseMove);
+  //   window.addEventListener('mousemove', handleMouseMove);
 
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, []);
+  //   return () => {
+  //     window.removeEventListener('mousemove', handleMouseMove);
+  //   };
+  // }, []);
 
-  const isFirstPerson = useRef(false);
+  const isFirstPerson = useRef(true);
   const [{ firstPerson }, setFirstPerson] = useControls('Scene', () => ({
-    firstPerson: false,
+    firstPerson: true,
   }));
 
   const loader = useMemo(() => {
@@ -270,6 +285,7 @@ function Model(props) {
     const box = new THREE.Box3();
     box.setFromObject(gltfScene);
     box.getCenter(gltfScene.position).negate();
+    // console.log(box);
     gltfScene.updateMatrixWorld(true);
 
     const staticGenerator = new StaticGeometryGenerator(gltfScene);
@@ -535,12 +551,8 @@ function Model(props) {
   }, []);
 
   useEffect(() => {
-    materials['Roof Glass'].transparent = true;
-    materials['Roof Glass'].opacity = 0.3;
-
-    materials['Material.004'].transparent = true;
-    materials['Material.004'].opacity = 0.2;
-  }, [materials]);
+    console.log(nodes.circularRoomPoolWater);
+  }, []);
 
   const videoTexture = useMemo(() => {
     const texture = new THREE.VideoTexture(video);
@@ -551,11 +563,33 @@ function Model(props) {
     return texture;
   }, [video]);
 
+  const floorBakedTexture = useMemo(() => {
+    const texture = new THREE.TextureLoader().load(bakedFloor);
+    // texture.flipY = false;
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+
+    return texture;
+  }, []);
+
   const floorTextureMap = useMemo(() => {
     const texture = new THREE.TextureLoader().load(floorTexture);
+    texture.flipY = false;
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(10, 10);
+    texture.repeat.set(25, 25);
+    return texture;
+  }, []);
+
+  const moonTexture = useMemo(() => {
+    const texture = new THREE.TextureLoader().load(textureURL);
+    texture.flipY = false;
+    return texture;
+  }, []);
+
+  const moonDisplacementTexture = useMemo(() => {
+    const texture = new THREE.TextureLoader().load(displacementURL);
+    texture.flipY = false;
     return texture;
   }, []);
 
@@ -616,15 +650,11 @@ function Model(props) {
   // const cubeCamera = new THREE.CubeCamera(0.1, 5000, cubeRenderTarget);
   // scene.add(cubeCamera);
 
-  const reflectorMaterial = useMemo(() => {
-    return new THREE.MeshStandardMaterial({
-      color: 'white',
-      roughness: 0,
-      metalness: 0.5,
-      // side: THREE.DoubleSide,
-      // envMap: cubeRenderTarget.texture,
-    });
-  }, []);
+  // const accentLightMaterial = useMemo(() => {
+  //   return new THREE.MeshBasicMaterial({
+  //     color: '#aaaaaa',
+  //   });
+  // }, []);
 
   useFrame((state, delta) => {
     if (collider.current) {
@@ -655,25 +685,38 @@ function Model(props) {
     // update uTime uniform
     uniforms.uTime.value = state.clock.elapsedTime;
 
-    if (fluid.current) {
-      if (fluid.current.uniform) {
-        canvas01.current.material.uniforms.uFluid.value =
-          fluid.current.uniform.value;
-      }
+    // if (fluid.current) {
+    //   if (fluid.current.uniform) {
+    //     canvas01.current.material.uniforms.uFluid.value =
+    //       fluid.current.uniform.value;
+    //   }
 
-      fluid.current.iterate = iterate;
-      fluid.current.densityDissipation = density;
-      fluid.current.velocityDissipation = velocity;
-      fluid.current.pressureDissipation = pressure;
-      fluid.current.curlStrength = curl;
-      fluid.current.radius = radius;
-      fluid.current.update();
-    }
+    //   fluid.current.iterate = iterate;
+    //   fluid.current.densityDissipation = density;
+    //   fluid.current.velocityDissipation = velocity;
+    //   fluid.current.pressureDissipation = pressure;
+    //   fluid.current.curlStrength = curl;
+    //   fluid.current.radius = radius;
+    //   fluid.current.update();
+    // }
 
     // if (cubeCamera) {
     //   cubeCamera.update(gl, scene);
     // }
   });
+
+  useEffect(() => {
+    // console.log('materials.floor001_Baked: ', materials.floor001_Baked);
+    // gl.toneMapping = THREE.ACESFilmicToneMapping;
+    // materials.floor001_Baked.toneMapped = false;
+    // gl.outputEncoding = THREE.sRGBEncoding;
+  }, []);
+
+  const floorTexture01 = useMemo(() => {
+    const texture = new THREE.TextureLoader().load(floorTextureBaked01);
+    texture.flipY = false;
+    return texture;
+  }, []);
 
   return (
     <>
@@ -712,7 +755,8 @@ function Model(props) {
                 wireframe={true}
                 wireframeLinewidth={0.1}
               />
-              {/* <meshToonMaterial /> */}
+              {/* <meshToonMaterial color="white" /> */}
+              {/* <meshMatcapMaterial /> */}
               {/* <meshStandardMaterial
                 color="white"
                 map={videoTexture}
@@ -723,419 +767,512 @@ function Model(props) {
         </group>
       </group>
       <group ref={world} {...props} dispose={null}>
+        <group
+          position={[-81.585, 1.546, -155.711]}
+          rotation={[-Math.PI / 2, 0, 0]}
+        >
+          <group rotation={[Math.PI / 2, 0, 0]}>
+            <group position={[-0.301, -0.125, -0.095]}>
+              <mesh
+                geometry={nodes.pine_2_1_pine_2_1Mat_0.geometry}
+                material={materials.pine_2_1Mat}
+              />
+              <mesh
+                geometry={nodes.pine_2_1_pine_2_1Mat_0_1.geometry}
+                material={materials.trunk_2_1_0Mat}
+              />
+            </group>
+            <group
+              position={[-5.016, -0.125, 5.02]}
+              rotation={[-Math.PI, 0.425, -Math.PI]}
+            >
+              <mesh
+                geometry={nodes.pine_2_1_pine_2_1Mat_0003.geometry}
+                material={materials.pine_2_1Mat}
+              />
+              <mesh
+                geometry={nodes.pine_2_1_pine_2_1Mat_0003_1.geometry}
+                material={materials.trunk_2_1_0Mat}
+              />
+            </group>
+          </group>
+        </group>
         <mesh
-          geometry={nodes.Cube013.geometry}
-          material={materials.circlePlatform}
-          position={[-62.164, -0.004, -133.957]}
-          rotation={[0, 0.097, 0]}
+          geometry={nodes.rockGroup_Baked.geometry}
+          material={materials.rockGroup_Baked}
+          position={[-38.04, 0.134, -113.847]}
+          rotation={[1.81, 0.887, 2.375]}
         />
         <mesh
-          geometry={nodes.Cube014.geometry}
-          material={materials.circlePlatform}
-          position={[-69.367, 0.003, -135.99]}
-          rotation={[0, 0.862, 0]}
-        />
-        <mesh
-          geometry={nodes.archWall01.geometry}
-          material={materials.walls}
-          position={[-104.611, 5.354, -159.279]}
-          rotation={[0, -0.817, 0]}
-        />
-        <mesh
-          geometry={nodes.archWall01001.geometry}
-          material={materials.walls}
-          position={[-92.549, 5.354, -172.955]}
-          rotation={[0, -0.578, 0]}
-        />
-        <mesh
-          geometry={nodes.Plane.geometry}
-          material={materials.ocean}
-          position={[-94.265, 1.248, -159.12]}
-          rotation={[0, -0.701, 0]}
-        />
-        <mesh
-          geometry={nodes.Icosphere001.geometry}
-          material={materials.sculpture}
-          castShadow
-          position={[-149.762, 13.073, -210.081]}
-          rotation={[-1.156, 0, 0]}
-        />
-        <mesh
-          geometry={nodes.Cube015.geometry}
-          material={materials.walls}
-          position={[-60.858, 1.25, -132.936]}
-          rotation={[0, -0.663, 0]}
-        />
-        <mesh
-          geometry={nodes.Plane001.geometry}
-          material={materials.roofEntrance}
-          position={[0.565, 4.3, -8.255]}
-          scale={[1, 0.836, 1]}
-        />
-        <mesh
-          geometry={nodes.entranceRoofGlass.geometry}
-          material={materials['Roof Glass']}
-          position={[0.837, 4.165, -8.272]}
-        />
-        <mesh
-          geometry={nodes.Plane002.geometry}
-          material={materials.floorEntrance}
-          position={[1.368, -1.078, 100.563]}
-        />
-        <mesh
-          geometry={nodes.Landscape001.geometry}
-          material={materials.rock}
-          position={[9.565, 0.784, -5.172]}
-          rotation={[-0.589, 0.785, 1.361]}
-        />
-        <mesh
-          geometry={nodes.Circle.geometry}
-          material={materials.floorInterior}
-          // material={reflectorMaterial}
-          position={[-1.738, 0.001, -30.89]}
-          receiveShadow
-        />
-        <mesh
-          geometry={nodes.Plane003.geometry}
-          material={materials.floorInterior}
-          // material={reflectorMaterial}
-          receiveShadow
-          position={[6.446, 0.001, -60.331]}
-        />
-        <mesh
-          geometry={nodes.BezierCurve.geometry}
-          material={materials.floorInterior}
-          // material={reflectorMaterial}
-          receiveShadow
-          position={[-5.586, 0.001, -86.258]}
-        />
-        <mesh
-          geometry={nodes.Plane004.geometry}
-          material={nodes.Plane004.material}
-          position={[2.279, -0.019, -70.591]}
-        />
-        <mesh
-          geometry={nodes.Landscape002.geometry}
-          material={materials.rock}
-          position={[-8.348, 0.615, -3.996]}
-          rotation={[-2.187, -0.154, -1.726]}
-        />
-        <mesh
-          geometry={nodes.Landscape003.geometry}
-          material={materials.rock}
-          position={[13.706, -0.38, -1.042]}
-          rotation={[-2.62, -0.017, -2.525]}
-        />
-        <mesh
-          geometry={nodes.Landscape004.geometry}
-          material={materials.rock}
-          position={[-12.522, -0.38, -1.903]}
-          rotation={[0.248, 0.216, 1.711]}
-        />
-        <mesh
-          geometry={nodes.entrance01.geometry}
-          material={materials.walls}
+          geometry={nodes.entranceWalls_Baked.geometry}
+          material={materials.entranceWalls_Baked}
           position={[0, -0.028, -13.737]}
         />
         <mesh
-          geometry={nodes.entranceCurvedWall.geometry}
-          material={materials.walls}
-          position={[-2.9, 4.431, -18.037]}
+          geometry={nodes.entranceCurvedWall_Baked.geometry}
+          material={materials.entranceWalls_Baked}
+          position={[-6.25, 4.315, -18.294]}
         />
         <mesh
-          geometry={nodes.floor.geometry}
-          material={materials.floorInterior}
-          // material={reflectorMaterial}
-          position={[0.183, 0, -19.383]}
-          receiveShadoww
+          geometry={nodes.entranceRoof_Baked.geometry}
+          material={materials.entranceWalls_Baked}
+          position={[-0.001, 3.242, -13.737]}
         />
         <mesh
-          receiveShadow
-          rotation={[-Math.PI / 2, 0, 0]}
-          position={[0.183, 0.1, -19.383]}
-        >
-          <planeGeometry args={[300, 300]} />
-          <MeshReflectorMaterial
-            blur={1024}
-            // blur={2048}
-            resolution={1024}
-            mixBlur={100}
-            mixStrength={60}
-            roughness={10}
-            depthScale={1.2}
-            minDepthThreshold={0.4}
-            maxDepthThreshold={1.4}
-            color="#202020"
-            metalness={0}
-            // normalMap={floorTextureMap}
-            aoMap={floorTextureMap}
-            aoMapIntensity={2}
-            // bumpMap={floorTextureMap}
-            // bumpScale={1}
-            // normalScale={[0.1, 0.1]}
-          />
-        </mesh>
+          geometry={nodes.entranceRoofWindows_Baked.geometry}
+          material={materials.entranceWalls_Baked}
+          position={[2.223, 7.458, -8.255]}
+        />
         <mesh
-          geometry={nodes.pedestal02.geometry}
-          material={materials.circlePlatform}
+          geometry={nodes.entranceCurvedRoomPedestal_Baked.geometry}
+          material={materials.entranceFloorAndPedestal_Baked}
           position={[-5.211, 0.496, -30.827]}
         />
         <mesh
-          geometry={nodes.entranceSphere.geometry}
-          material={materials.sculpture}
-          castShadow
-          position={[-5.211, 1.668, -30.827]}
-        />
-        <mesh
-          geometry={nodes.entranceRoofCutout.geometry}
-          material={materials.ringLight}
-          position={[-5.209, 7.626, -30.899]}
-          scale={[1, 0.45, 1]}
-        />
-        <mesh
-          geometry={nodes.straightRoom.geometry}
-          material={materials.walls}
-          position={[6.191, -0.001, -41.53]}
-        />
-        <mesh
-          geometry={nodes.Cube004.geometry}
-          material={materials.canvasBack}
-          position={[12.035, 3, -53.036]}
-          rotation={[0, -0.42, 0]}
-          scale={[1.629, 1.225, 1.225]}
-        />
-        <mesh
-          geometry={nodes.circularRoom.geometry}
-          material={materials.walls}
-          position={[-38.268, 0.726, -114.098]}
-          rotation={[0, -0.113, 0]}
-        />
-        <mesh
-          geometry={nodes.Cylinder001.geometry}
-          material={materials.walls}
-          position={[-39.042, 0.991, -118.189]}
-        />
-        <mesh
-          geometry={nodes.Cylinder.geometry}
-          material={materials.circlePlatform}
-          position={[-38.268, 0.16, -114.098]}
-        />
-        <mesh
-          geometry={nodes.TorusKnot.geometry}
-          material={materials.sculpture}
-          position={[-38.268, 4.353, -114.098]}
-          rotation={[0.118, 0.573, -0.109]}
-        />
-        <mesh
-          geometry={nodes.water.geometry}
-          material={materials['Material.004']}
-          position={[-38.268, 0.126, -114.098]}
-        />
-        <mesh
-          geometry={nodes.Cube009.geometry}
-          material={materials.benches}
-          position={[-4.492, 0.235, -49.039]}
-          rotation={[0, 0, Math.PI]}
-        />
-        <mesh
-          geometry={nodes.Cube010.geometry}
-          material={materials.benches}
-          position={[-11.588, 0.235, -89.045]}
-          rotation={[-Math.PI, -1.389, 0]}
-        />
-        <mesh
-          geometry={nodes.Cylinder004.geometry}
-          material={materials.ringLight}
-          position={[10.297, 13.869, -80.145]}
-          scale={[1, 0.907, 1]}
-        />
-        <mesh
-          geometry={nodes.Cylinder005.geometry}
-          material={materials.ringLight}
-          position={[1.025, 13.875, -97.349]}
-        />
-        <mesh
-          geometry={nodes['~'].geometry}
-          material={materials.sculpture}
-          position={[16.275, 0.664, -73.274]}
-        />
-        <mesh
-          geometry={nodes.Cube011.geometry}
-          material={materials['pillar.001']}
-          position={[16.643, 0, -31.631]}
-        />
-        <mesh
-          geometry={nodes.Cube012.geometry}
-          material={materials['pillar.001']}
-          position={[16.643, 0, -35.363]}
-        />
-        <mesh
-          ref={canvas01}
-          geometry={nodes.Canvas01.geometry}
-          material={shaderMaterial}
-          position={[12.035, 3, -53.036]}
-          rotation={[0, -0.42, 0]}
-          scale={[1.63, 1.225, 1.225]}
-        />
-        <mesh
-          geometry={nodes.entranceRoof.geometry}
-          material={materials.walls}
-          position={[0, -0.039, -13.737]}
-        />
-        <mesh
-          geometry={nodes.floor001.geometry}
-          material={materials.floorEntrance}
+          geometry={nodes.floor001_Baked.geometry}
+          material={materials.entranceFloorAndPedestal_Baked}
           position={[0.183, 0, -19.383]}
         />
         <mesh
-          geometry={nodes.entrance02001.geometry}
-          material={materials.walls}
-          position={[-1.231, 5.329, -29.409]}
+          geometry={nodes.entranceCurvedRoom_Baked.geometry}
+          material={materials.entranceRoundWalls_Baked}
+          position={[-4.383, 5.782, -31.047]}
         />
         <mesh
-          geometry={nodes.Cube023.geometry}
-          material={materials.benches}
-          position={[12.409, 0.235, -31.067]}
-          rotation={[Math.PI, Math.PI / 2, 0]}
+          geometry={nodes.entranceCurvedRoomTop_Baked.geometry}
+          material={materials.entranceRoundWalls_Baked}
+          position={[-1.632, 9.146, -30.827]}
         />
         <mesh
-          geometry={nodes.Cube024.geometry}
-          material={materials.benches}
-          position={[17.132, 0.235, -39.579]}
-          rotation={[-Math.PI, 0, 0]}
+          geometry={nodes.mainRoomTop001_Baked.geometry}
+          material={materials.mainHallFloorAndTop_Baked}
+          position={[6.161, 16.353, -65.066]}
         />
         <mesh
-          geometry={nodes.Cube002.geometry}
-          material={materials.canvasBack}
-          position={[-0.787, 3, -72.638]}
-          rotation={[0, 0.413, 0]}
-          scale={[1.629, 1.225, 1.225]}
-        />
-        <mesh
-          ref={canvas02}
-          geometry={nodes.Canvas01001.geometry}
-          material={shaderMaterial}
-          position={[-0.787, 3, -72.638]}
-          rotation={[0, 0.413, 0]}
-          scale={[1.63, 1.225, 1.225]}
-        />
-        <mesh
-          geometry={nodes.Cube003.geometry}
-          material={materials.canvasBack}
-          position={[10.63, 3, -92.398]}
-          rotation={[0, -0.45, 0]}
-          scale={[1.629, 1.225, 1.225]}
-        />
-        <mesh
-          ref={canvas03}
-          geometry={nodes.Canvas01002.geometry}
-          material={shaderMaterial}
-          position={[10.63, 3, -92.398]}
-          rotation={[0, -0.45, 0]}
-          scale={[1.63, 1.225, 1.225]}
-        />
-        <mesh
-          geometry={nodes.Cube001.geometry}
-          material={materials.canvasBack}
-          position={[-10.216, 3, -110.056]}
-          rotation={[0, 0.554, 0]}
-          scale={[1.629, 1.225, 1.225]}
-        />
-        <mesh
-          ref={canvas04}
-          geometry={nodes.Canvas01003.geometry}
-          material={shaderMaterial}
-          position={[-10.216, 3, -110.056]}
-          rotation={[0, 0.554, 0]}
-          scale={[1.63, 1.225, 1.225]}
-        />
-        <mesh
-          geometry={nodes.Cube005.geometry}
-          material={materials.canvasBack}
-          position={[-30.974, 3, -89.757]}
-          rotation={[-Math.PI, 0.859, -Math.PI]}
-          scale={[1.629, 1.225, 1.225]}
-        />
-        <mesh
-          ref={canvas05}
-          geometry={nodes.Canvas01004.geometry}
-          material={shaderMaterial}
-          position={[-30.974, 3, -89.757]}
-          rotation={[-Math.PI, 0.859, -Math.PI]}
-          scale={[1.63, 1.225, 1.225]}
-        />
-        <mesh
-          geometry={nodes.Cube006.geometry}
-          material={materials.canvasBack}
-          position={[-59.154, 3, -98.602]}
-          rotation={[0, 1.48, 0]}
-          scale={[1.629, 1.225, 1.225]}
-        />
-        <mesh
-          ref={canvas06}
-          geometry={nodes.Canvas01005.geometry}
-          material={shaderMaterial}
-          position={[-59.154, 3, -98.602]}
-          rotation={[0, 1.48, 0]}
-          scale={[1.63, 1.225, 1.225]}
-        />
-        <mesh
-          geometry={nodes.Cube007.geometry}
-          material={materials.canvasBack}
-          position={[-64.587, 3, -118.668]}
-          rotation={[0, 0.709, 0]}
-          scale={[1.629, 1.225, 1.225]}
-        />
-        <mesh
-          ref={canvas07}
-          geometry={nodes.Canvas01006.geometry}
-          material={shaderMaterial}
-          position={[-64.587, 3, -118.668]}
-          rotation={[0, 0.709, 0]}
-          scale={[1.63, 1.225, 1.225]}
-        />
-        <mesh
-          geometry={nodes.straightRoom001.geometry}
-          material={materials.ringLight}
+          geometry={nodes.mainRoomWalls_Baked.geometry}
+          material={materials.mainHallWalls_Baked}
           position={[6.191, -0.001, -41.53]}
         />
         <mesh
-          geometry={nodes.circularRoom001.geometry}
+          geometry={nodes.mainRoomTop002_Baked.geometry}
+          material={materials.mainHallWalls_Baked}
+          position={[0.682, 16.351, -97.22]}
+        />
+        <mesh
+          geometry={nodes.floor003_Baked.geometry}
+          material={materials.floor003_Baked}
+          position={[0.183, 0, -19.383]}
+        />
+        <mesh
+          geometry={nodes.floor003001_Baked.geometry}
+          material={materials.mainCircularRoomFloors_Baked}
+          position={[0.183, 0, -19.383]}
+        />
+        <mesh
+          geometry={nodes.floor003002_Baked.geometry}
+          material={materials.mainCircularRoomFloors_Baked}
+          position={[0.183, 0, -19.383]}
+        />
+        <mesh
+          geometry={nodes.circularRoom_Baked.geometry}
+          material={materials.circularRoom_Baked}
+          position={[-38.268, 0.726, -114.098]}
+          rotation={[0, -0.113, 0]}
+        />
+        <mesh
+          geometry={nodes.circularRoomTop_Baked.geometry}
+          material={materials.circularRoomTop_Baked}
+          position={[-38.268, 18.336, -114.098]}
+        />
+        <mesh
+          geometry={nodes.floor002_Baked.geometry}
+          material={materials.floor002_Baked}
+          position={[0.183, 0, -19.383]}
+        />
+        <mesh
+          geometry={nodes.logoSculpture_Baked.geometry}
+          material={materials.logoSculpture_Baked}
+          position={[-5.387, 3.083, -30.796]}
+          rotation={[-2.359, 0.205, 0.281]}
+        />
+        <mesh
+          geometry={nodes.circularRoomPool_Baked.geometry}
+          material={materials.mainCircularRoomPool_Baked}
+          position={[-38.268, 0.16, -114.098]}
+        />
+        <mesh
+          geometry={nodes.sculptureSorento_Baked.geometry}
+          material={materials.mainCircularRoomPool_Baked}
+          position={[-51.429, 0.004, -138.733]}
+        />
+        <mesh
+          geometry={nodes.outdoorStairs_Baked.geometry}
+          material={materials.outdoorStairs_Baked}
+          position={[-61.17, 0, -133.453]}
+          rotation={[0, 0.073, 0]}
+        />
+        <mesh
+          geometry={nodes.archOutdoor_Baked.geometry}
+          material={materials.arches_Baked}
+          position={[-82.72, 9.846, -151.925]}
+          rotation={[0, -0.7, 0]}
+        />
+        <mesh
+          geometry={nodes.arch001_Baked.geometry}
+          material={materials.arches_Baked}
+          position={[-61.189, 0.957, -133.464]}
+          rotation={[Math.PI / 2, 0, -0.871]}
+        />
+        <mesh
+          geometry={nodes.canvasBack001.geometry}
+          material={materials.canvasBack}
+          position={[12.034, 3, -53.031]}
+          rotation={[0, -0.422, 0]}
+        />
+        <mesh
+          // geometry={nodes.circularRoomPoolWater.geometry}
+          // material={materials.ocean}
+          position={[-38.268, 0.26, -114.098]}
+          rotation={nodes.circularRoomPoolWater.rotation}
+          rotation-x={-Math.PI * 0.5}
+        >
+          <circleGeometry args={[15, 25]} />
+          <MeshReflectorMaterial
+            blur={[300, 100]}
+            resolution={2048}
+            mixBlur={1}
+            mixStrength={50}
+            roughness={0.2}
+            depthScale={1.2}
+            minDepthThreshold={0.4}
+            maxDepthThreshold={1.4}
+            color="#0f1112"
+            metalness={0}
+          />
+        </mesh>
+        <mesh
+          geometry={nodes.sphere003.geometry}
+          material={materials.sculpture}
+          position={[3.486, 1.018, -107.404]}
+        />
+        <mesh
+          geometry={nodes.columns.geometry}
+          material={materials.benches}
+          position={[16.643, 0, -35.363]}
+        />
+        <mesh
+          geometry={nodes.canvas001.geometry}
+          material={materials.Canvas01}
+          position={[12.013, 3.027, -53.04]}
+          rotation={[0, -0.422, 0]}
+        />
+        <mesh
+          geometry={nodes.canvasBack002.geometry}
+          material={materials.canvasBack}
+          position={[-0.787, 3, -72.638]}
+          rotation={[0, 0.42, 0]}
+        />
+        <mesh
+          geometry={nodes.canvas002.geometry}
+          material={materials.Canvas02}
+          position={[-0.787, 3.028, -72.638]}
+          rotation={[0, 0.42, 0]}
+        />
+        <mesh
+          geometry={nodes.canvasBack003.geometry}
+          material={materials.canvasBack}
+          position={[10.63, 3, -92.398]}
+          rotation={[0, -0.454, 0]}
+        />
+        <mesh
+          geometry={nodes.canvas003.geometry}
+          material={materials.Canvas03}
+          position={[10.63, 3.03, -92.398]}
+          rotation={[0, -0.454, 0]}
+        />
+        <mesh
+          geometry={nodes.canvasBack004.geometry}
+          material={materials.canvasBack}
+          position={[-10.216, 3, -110.056]}
+          rotation={[0, 0.556, 0]}
+        />
+        <mesh
+          geometry={nodes.canvas004.geometry}
+          material={materials.Canvas04}
+          position={[-10.216, 3.038, -110.056]}
+          rotation={[0, 0.556, 0]}
+        />
+        <mesh
+          geometry={nodes.canvasBack005.geometry}
+          material={materials.canvasBack}
+          position={[-30.974, 3, -89.757]}
+          rotation={[-Math.PI, 0.793, -Math.PI]}
+        />
+        <mesh
+          geometry={nodes.canvas005.geometry}
+          material={materials.Canvas05}
+          position={[-30.974, 3.021, -89.757]}
+          rotation={[-Math.PI, 0.793, -Math.PI]}
+        />
+        <mesh
+          geometry={nodes.canvasBack006.geometry}
+          material={materials.canvasBack}
+          position={[-59.154, 3, -98.602]}
+          rotation={[0, 1.476, 0]}
+        />
+        <mesh
+          geometry={nodes.canvas006.geometry}
+          material={materials.Canvas06}
+          position={[-59.154, 3.028, -98.602]}
+          rotation={[0, 1.476, 0]}
+        />
+        <mesh
+          geometry={nodes.canvasBack007.geometry}
+          material={materials.canvasBack}
+          position={[-64.587, 3, -118.668]}
+          rotation={[0, 0.714, 0]}
+        />
+        <mesh
+          geometry={nodes.canvas007.geometry}
+          material={materials.Canvas07}
+          position={[-64.587, 3.039, -118.668]}
+          rotation={[0, 0.714, 0]}
+        />
+        <mesh
+          geometry={nodes.sphere002.geometry}
+          material={materials.sculpture}
+          position={[-3.167, 1.018, -55.319]}
+        />
+        <mesh
+          geometry={nodes.sphere004.geometry}
+          material={materials.sculpture}
+          position={[-56.379, 1.018, -92.623]}
+        />
+        <mesh
+          geometry={nodes.recessedLighting.geometry}
           material={materials.ringLight}
           position={[-38.268, 0.726, -114.098]}
           rotation={[0, -0.113, 0]}
         />
         <mesh
-          ref={skySphere}
-          geometry={nodes.skySphere.geometry}
-          // material={materials.skySphere}
-          position={[-13.16, 3.64, -115.662]}
-          scale={596.281}
-        >
-          <meshStandardMaterial color={'black'} />
-        </mesh>
-        <mesh
-          geometry={nodes.Sorento_Sculpture.geometry}
-          material={materials.sculpture}
-          position={[-53.53, 0.004, -137.858]}
+          geometry={nodes.benches.geometry}
+          material={materials.benches}
+          position={[-2.705, 0.235, -5.62]}
+          rotation={[-Math.PI, 0, 0]}
         />
         <mesh
-          geometry={nodes.Human_walking_18m.geometry}
+          geometry={nodes.sphere001.geometry}
+          material={materials.sculpture}
+          position={[16.34, 1.018, -34.641]}
+        />
+        <mesh
+          geometry={nodes.outdoorWaterBarrier.geometry}
           material={materials.benches}
+          position={[-38.623, -0.785, -159.184]}
+          rotation={[0, -0.731, 0]}
+        />
+        <mesh
+          geometry={nodes.human001.geometry}
+          material={materials.logoSculpture}
+          position={[6.714, -0.045, -14.873]}
+          rotation={[Math.PI, -0.491, Math.PI]}
+        />
+        <mesh
+          geometry={nodes.human002.geometry}
+          material={materials.logoSculpture}
           position={[15.009, -0.045, -46.33]}
           rotation={[Math.PI, -0.302, Math.PI]}
-          scale={1.095}
         />
         <mesh
-          geometry={nodes.Human_walking_18m001.geometry}
-          material={materials.benches}
+          geometry={nodes.human003.geometry}
+          material={materials.logoSculpture}
           position={[-21.263, -0.045, -90.278]}
           rotation={[0, -1.34, 0]}
-          scale={1.095}
+        />
+        <mesh
+          geometry={nodes.entranceRoofGlass.geometry}
+          // material={materials['Roof Glass']}
+          position={[0.892, 7.404, -8.343]}
+        >
+          <meshStandardMaterial
+            color="#FFFFFF"
+            // metalness={0.5}
+            roughness={0}
+            transparent
+            opacity={0.2}
+          />
+        </mesh>
+        <mesh
+          geometry={nodes.island001.geometry}
+          material={materials['rock.001']}
+          position={[-250.715, 1.248, -296.708]}
+          scale={36.713}
+        />
+        <mesh
+          geometry={nodes.island002.geometry}
+          material={materials['rock.001']}
+          position={[-283.332, -0.972, -265.452]}
+          rotation={[-Math.PI, 1.53, -Math.PI]}
+          scale={28.756}
+        />
+        <mesh
+          geometry={nodes.island003.geometry}
+          material={materials['rock.001']}
+          position={[-217.109, -0.27, -323.345]}
+          rotation={[0, 1.5, 0]}
+          scale={23.858}
+        />
+        <mesh
+          geometry={nodes.island005.geometry}
+          material={materials['rock.001']}
+          position={[-140.402, -0.223, -40.052]}
+          rotation={[0, -0.274, 0]}
+          scale={42.645}
+        />
+        <mesh
+          geometry={nodes.island004.geometry}
+          material={materials['rock.001']}
+          position={[-82.945, -1.914, -44.586]}
+          rotation={[0, 1.252, 0]}
+          scale={42.295}
+        />
+        <mesh
+          geometry={nodes.island006.geometry}
+          material={materials['rock.001']}
+          position={[10.547, -0.223, -225.383]}
+          rotation={[Math.PI, -0.988, Math.PI]}
+          scale={36.713}
+        />
+        <mesh
+          geometry={nodes.island008.geometry}
+          material={materials['rock.001']}
+          position={[106.985, -0.223, -147.611]}
+          rotation={[0, -0.515, 0]}
+          scale={36.713}
+        />
+        <mesh
+          geometry={nodes.island007.geometry}
+          material={materials['rock.001']}
+          position={[22.29, -1.914, -185.296]}
+          rotation={[0, -0.628, 0]}
+          scale={42.295}
+        />
+        <mesh
+          geometry={nodes.islandSphere.geometry}
+          material={materials.sculpture}
+          position={[-290.987, 7.529, -331.563]}
+        />
+        <mesh
+          geometry={nodes.outdoorWaterBack.geometry}
+          material={materials.ocean}
+          position={[-120.208, 1.248, -184.074]}
+          rotation={[0, -0.701, 0]}
+        >
+          {/* <MeshReflectorMaterial
+            blur={[300, 100]}
+            resolution={2048}
+            mixBlur={1}
+            mixStrength={50}
+            roughness={0.2}
+            depthScale={1.2}
+            minDepthThreshold={0.4}
+            maxDepthThreshold={1.4}
+            color="#0f1112"
+            metalness={0}
+          /> */}
+        </mesh>
+        <mesh
+          geometry={nodes.outdoorWaterFront.geometry}
+          material={materials.ocean}
+          position={[2.279, -0.019, -70.591]}
+        />
+        <mesh
+          geometry={nodes.plantFrontGroup.geometry}
+          material={materials['plant-1.001']}
+          position={[-12.401, -0.097, -5.22]}
+          rotation={[-1.017, -1.093, -0.963]}
+        />
+        <group position={[-39.903, 0.289, -119.987]} rotation={[0, -1.313, 0]}>
+          <mesh
+            geometry={nodes.Mesh045.geometry}
+            material={materials['Leafs_Plante_01.001']}
+          />
+          <mesh
+            geometry={nodes.Mesh045_1.geometry}
+            material={materials['plant-1.001']}
+          />
+          <mesh
+            geometry={nodes.Mesh045_2.geometry}
+            material={materials['Leafs_Plante_04.002']}
+          />
+        </group>
+        <mesh
+          geometry={nodes.sphere005.geometry}
+          material={materials.sculpture}
+          position={[-64.611, 2.429, -140.891]}
+        />
+        <mesh
+          geometry={nodes.sphere006.geometry}
+          material={materials.sculpture}
+          position={[-38.04, 15.327, -113.847]}
         />
       </group>
     </>
   );
+}
+
+{
+  /* <mesh
+  // geometry={nodes.circularRoomPoolWater.geometry}
+  // material={materials.ocean}
+  position={[-38.268, 0.26, -114.098]}
+  rotation={nodes.circularRoomPoolWater.rotation}
+  rotation-x={-Math.PI * 0.5}
+>
+  <circleGeometry args={[15, 25]} />
+  <MeshReflectorMaterial
+    blur={[300, 100]}
+    resolution={2048}
+    mixBlur={1}
+    mixStrength={50}
+    roughness={0.2}
+    depthScale={1.2}
+    minDepthThreshold={0.4}
+    maxDepthThreshold={1.4}
+    color="#0f1112"
+    metalness={0}
+  />
+</mesh>; */
+}
+
+{
+  /* <mesh
+  receiveShadow
+  rotation={[-Math.PI / 2, 0, 0]}
+  position={[0.183, 0.015, -19.383]}
+>
+  <planeGeometry args={[300, 300]} />
+  <MeshReflectorMaterial
+    blur={1024}
+    // blur={2048}
+    resolution={1024}
+    mixBlur={10}
+    mixStrength={100}
+    roughness={1}
+    depthScale={1.2}
+    minDepthThreshold={0.4}
+    maxDepthThreshold={1.4}
+    color="#212121"
+    metalness={0.25}
+    // map={floorTextureMap2}
+    // normalMap={floorTextureMapNormal2}
+    // normalMapType={THREE.ObjectSpaceNormalMap}
+    // roughnessMap={floorTextureMapRoughness2}
+    // bumpMap={floorTextureMap}
+    aoMap={floorTextureMap}
+    aoMapIntensity={2}
+  />
+</mesh> */
 }
 
 useGLTF.preload(MODEL_URL);

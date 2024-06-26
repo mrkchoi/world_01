@@ -618,6 +618,8 @@ class OrbitControls extends EventDispatcher {
           pan(-scope.keyPanSpeed, 0);
           needsUpdate = true;
           break;
+        default:
+          break;
       }
       if (needsUpdate) {
         event.preventDefault();
@@ -625,7 +627,7 @@ class OrbitControls extends EventDispatcher {
       }
     }
     function handleTouchStartRotate() {
-      if (pointers.length == 1) {
+      if (pointers.length === 1) {
         rotateStart.set(pointers[0].pageX, pointers[0].pageY);
       } else {
         const x = 0.5 * (pointers[0].pageX + pointers[1].pageX);
@@ -634,7 +636,7 @@ class OrbitControls extends EventDispatcher {
       }
     }
     function handleTouchStartPan() {
-      if (pointers.length == 1) {
+      if (pointers.length === 1) {
         panStart.set(pointers[0].pageX, pointers[0].pageY);
       } else {
         const x = 0.5 * (pointers[0].pageX + pointers[1].pageX);
@@ -657,7 +659,7 @@ class OrbitControls extends EventDispatcher {
       if (scope.enableRotate) handleTouchStartRotate();
     }
     function handleTouchMoveRotate(event) {
-      if (pointers.length == 1) {
+      if (pointers.length === 1) {
         rotateEnd.set(event.pageX, event.pageY);
       } else {
         const position = getSecondPointerPosition(event);
@@ -676,7 +678,7 @@ class OrbitControls extends EventDispatcher {
       rotateStart.copy(rotateEnd);
     }
     function handleTouchMovePan(event) {
-      if (pointers.length == 1) {
+      if (pointers.length === 1) {
         panEnd.set(event.pageX, event.pageY);
       } else {
         const position = getSecondPointerPosition(event);
@@ -814,6 +816,8 @@ class OrbitControls extends EventDispatcher {
           if (scope.enablePan === false) return;
           handleMouseMovePan(event);
           break;
+        default:
+          break;
       }
     }
     function onMouseWheel(event) {
@@ -915,7 +919,7 @@ class OrbitControls extends EventDispatcher {
     function removePointer(event) {
       delete pointerPositions[event.pointerId];
       for (let i = 0; i < pointers.length; i++) {
-        if (pointers[i].pointerId == event.pointerId) {
+        if (pointers[i].pointerId === event.pointerId) {
           pointers.splice(i, 1);
           return;
         }

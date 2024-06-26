@@ -1,71 +1,79 @@
 import { Canvas } from '@react-three/fiber';
 import './App.css';
-import Experience from './components/Experience';
 import { useEffect, useMemo, useState } from 'react';
+import Experience from './components/Experience';
+import BackgroundAudio from './components/BackgroundAudio';
+import * as THREE from 'three';
 
-import audio01 from '/assets/audio/cartier.mp3';
+// import audio01 from '/assets/audio/cartier.mp3';
 // import audio01 from '/assets/audio/hennessy_court.ogg';
 // import audio01 from '/assets/audio/ufl_ambient.mp3';
 
+import Instructions from './components/Instructions';
+import {
+  EffectComposer,
+  GodRays,
+  N8AO,
+  ToneMapping,
+  Vignette,
+} from '@react-three/postprocessing';
+import { BlendFunction } from 'postprocessing';
+import { useControls } from 'leva';
+import Header from './components/Header';
+
 function App() {
-  const [isAudioOn, setIsAudioOn] = useState(false);
-  // const [play, { stop }] = useSound(audio01, { loop: true });
-  const audio = useMemo(() => new Audio(audio01), []);
-
-  const handleAudio = () => {
-    setIsAudioOn(!isAudioOn);
-    if (isAudioOn) {
-      audio.pause();
-    } else {
-      audio.play();
+  const { toneMappingExposure, toneMappingType } = useControls(
+    {
+      toneMappingExposure: {
+        value: 1.5,
+        min: 0,
+        max: 10,
+      },
+      toneMappingType: {
+        // value: THREE.NoToneMapping,
+        value: THREE.ReinhardToneMapping,
+        options: [
+          THREE.NoToneMapping,
+          THREE.LinearToneMapping,
+          THREE.ReinhardToneMapping,
+          THREE.CineonToneMapping,
+          THREE.ACESFilmicToneMapping,
+        ],
+      },
+    },
+    {
+      collapsed: true,
     }
-  };
-
-  const handleVisibilityChange = () => {
-    if (document.visibilityState === 'hidden' && isAudioOn) {
-      audio.pause();
-    } else if (document.visibilityState === 'visible' && isAudioOn) {
-      audio.play();
-    }
-  };
-
-  useEffect(() => {
-    audio.addEventListener('ended', () => {
-      audio.currentTime = 0;
-      audio.play();
-    });
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      audio.pause();
-      setIsAudioOn(false);
-    };
-  }, []);
+  );
 
   return (
     <>
       <div className="fixed left-0 top-0 h-screen w-full">
-        <Canvas shadows>
+        <Canvas
+          shadows
+          // flat
+          // linear
+          gl={{
+            // gammaFactor: 3.2,
+            // outputEncoding: THREE.sRGBEncoding,
+            toneMapping: toneMappingType,
+            toneMappingExposure: toneMappingExposure,
+          }}
+        >
+          {/* <EffectComposer multisampling={0} disableRenderPass>
+            <Vignette
+              eskil={false}
+              offset={0.05}
+              darkness={0.7}
+              blendFunction={BlendFunction.NORMAL}
+            />
+          </EffectComposer> */}
           <Experience />
         </Canvas>
       </div>
-      <div className="absolute bottom-0 right-0">
-        <button className="relative p-8 pr-12 text-white" onClick={handleAudio}>
-          <div className="relative">
-            <div
-              className={[
-                'absolute left-0 top-[50%] h-[1px] w-full bg-white transition-opacity duration-200 ease-in-out',
-                isAudioOn ? 'opacity-0' : 'opacity-100',
-              ].join(' ')}
-            ></div>
-            <span className="text-sm uppercase">
-              sound {isAudioOn ? ' on' : ' off'}
-            </span>
-          </div>
-        </button>
-      </div>
+      <Header />
+      <Instructions />
+      <BackgroundAudio />
     </>
   );
 }

@@ -11,12 +11,6 @@ export function Model(props) {
   return (
     <group {...props} dispose={null}>
       <mesh
-        geometry={nodes.Cube013.geometry}
-        material={materials.circlePlatform}
-        position={[-62.164, -0.004, -133.957]}
-        rotation={[0, 0.097, 0]}
-      />
-      <mesh
         geometry={nodes.Cube014.geometry}
         material={materials.circlePlatform}
         position={[-69.367, 0.003, -135.99]}
@@ -50,7 +44,7 @@ export function Model(props) {
         geometry={nodes.Cube015.geometry}
         material={materials.walls}
         position={[-60.858, 1.25, -132.936]}
-        rotation={[0, -0.663, 0]}
+        rotation={[0, -0.693, 0]}
       />
       <mesh
         geometry={nodes.Plane001.geometry}
@@ -111,6 +105,276 @@ export function Model(props) {
         material={materials.rock}
         position={[-12.522, -0.38, -1.903]}
         rotation={[0.248, 0.216, 1.711]}
+      />
+      <mesh
+        geometry={nodes.stairPlatform.geometry}
+        material={materials.floorInterior}
+        position={[-69.367, 0.003, -135.99]}
+        rotation={[0, 0.862, 0]}
+      />
+      <mesh
+        geometry={nodes.stairPlatform001.geometry}
+        material={materials.ringLight}
+        position={[-69.367, 0.003, -135.99]}
+        rotation={[0, 0.862, 0]}
+      />
+      <mesh
+        geometry={nodes.Cube008.geometry}
+        material={materials.ringLight}
+        position={[-60.858, 1.25, -132.936]}
+        rotation={[0, -0.693, 0]}
+      />
+      <mesh
+        geometry={nodes.Cube013.geometry}
+        material={materials.ringLight}
+        position={[-60.858, 1.25, -132.936]}
+        rotation={[0, -0.693, 0]}
+      />
+      <mesh
+        geometry={nodes.Cube016.geometry}
+        material={materials.ringLight}
+        position={[-60.858, 1.25, -132.936]}
+        rotation={[0, -0.693, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01002.geometry}
+        material={materials.ringLight}
+        position={[-92.549, 5.354, -172.955]}
+        rotation={[0, -0.578, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01003.geometry}
+        material={materials.ringLight}
+        position={[-92.549, 5.354, -172.955]}
+        rotation={[0, -0.578, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01004.geometry}
+        material={materials.ringLight}
+        position={[-92.549, 5.354, -172.955]}
+        rotation={[0, -0.578, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01005.geometry}
+        material={materials.ringLight}
+        position={[-92.549, 5.354, -172.955]}
+        rotation={[0, -0.578, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01006.geometry}
+        material={materials.ringLight}
+        position={[-92.549, 5.354, -172.955]}
+        rotation={[0, -0.578, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01007.geometry}
+        material={materials.ringLight}
+        position={[-92.549, 5.354, -172.955]}
+        rotation={[0, -0.578, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01008.geometry}
+        material={materials.ringLight}
+        position={[-92.549, 5.354, -172.955]}
+        rotation={[0, -0.578, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01009.geometry}
+        material={materials['ringLight.001']}
+        position={[-92.549, 5.354, -172.955]}
+        rotation={[0, -0.578, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01010.geometry}
+        material={materials.ringLight}
+        position={[-92.549, 5.354, -172.955]}
+        rotation={[0, -0.578, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01011.geometry}
+        material={materials.ringLight}
+        position={[-92.549, 5.354, -172.955]}
+        rotation={[0, -0.578, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01012.geometry}
+        material={materials.ringLight}
+        position={[-92.549, 5.354, -172.955]}
+        rotation={[0, -0.578, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01013.geometry}
+        material={materials.ringLight}
+        position={[-40.377, 5.235, -137.552]}
+        rotation={[-Math.PI, 0.578, -Math.PI]}
+      />
+      <mesh
+        geometry={nodes.archWall01014.geometry}
+        material={materials.ringLight}
+        position={[-40.377, 5.235, -137.552]}
+        rotation={[-Math.PI, 0.578, -Math.PI]}
+      />
+      <mesh
+        geometry={nodes.archWall01015.geometry}
+        material={materials.ringLight}
+        position={[-40.377, 5.235, -137.552]}
+        rotation={[-Math.PI, 0.578, -Math.PI]}
+      />
+      <mesh
+        geometry={nodes.archWall01016.geometry}
+        material={materials.ringLight}
+        position={[-40.377, 5.235, -137.552]}
+        rotation={[-Math.PI, 0.578, -Math.PI]}
+      />
+      <mesh
+        geometry={nodes.archWall01017.geometry}
+        material={materials.ringLight}
+        position={[-40.377, 5.235, -137.552]}
+        rotation={[-Math.PI, 0.578, -Math.PI]}
+      />
+      <mesh
+        geometry={nodes.archWall01018.geometry}
+        material={materials['ringLight.001']}
+        position={[-40.377, 5.235, -137.552]}
+        rotation={[-Math.PI, 0.578, -Math.PI]}
+      />
+      <mesh
+        geometry={nodes.archWall01019.geometry}
+        material={materials.ringLight}
+        position={[-40.377, 5.235, -137.552]}
+        rotation={[-Math.PI, 0.578, -Math.PI]}
+      />
+      <mesh
+        geometry={nodes.archWall01020.geometry}
+        material={materials.ringLight}
+        position={[-40.377, 5.235, -137.552]}
+        rotation={[-Math.PI, 0.578, -Math.PI]}
+      />
+      <mesh
+        geometry={nodes.archWall01021.geometry}
+        material={materials.ringLight}
+        position={[-40.377, 5.235, -137.552]}
+        rotation={[-Math.PI, 0.578, -Math.PI]}
+      />
+      <mesh
+        geometry={nodes.archWall01022.geometry}
+        material={materials.ringLight}
+        position={[-98.692, 10.683, -152.821]}
+        rotation={[0, -0.817, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01023.geometry}
+        material={materials.ringLight}
+        position={[-98.692, 10.683, -152.821]}
+        rotation={[0, -0.817, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01024.geometry}
+        material={materials.ringLight}
+        position={[-98.284, 10.682, -152.478]}
+        rotation={[0, -0.816, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01025.geometry}
+        material={materials.ringLight}
+        position={[-98.284, 10.682, -152.478]}
+        rotation={[0, -0.816, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01026.geometry}
+        material={materials.ringLight}
+        position={[-98.284, 10.682, -152.478]}
+        rotation={[0, -0.816, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01027.geometry}
+        material={materials.ringLight}
+        position={[-98.284, 10.682, -152.478]}
+        rotation={[0, -0.816, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01028.geometry}
+        material={materials.ringLight}
+        position={[-98.284, 10.682, -152.478]}
+        rotation={[0, -0.816, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01029.geometry}
+        material={materials['ringLight.001']}
+        position={[-98.284, 10.682, -152.478]}
+        rotation={[0, -0.816, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01030.geometry}
+        material={materials.ringLight}
+        position={[-98.284, 10.682, -152.478]}
+        rotation={[0, -0.816, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01031.geometry}
+        material={materials.ringLight}
+        position={[-98.284, 10.682, -152.478]}
+        rotation={[0, -0.816, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01032.geometry}
+        material={materials.ringLight}
+        position={[-98.284, 10.682, -152.478]}
+        rotation={[0, -0.816, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01033.geometry}
+        material={materials.ringLight}
+        position={[-99.094, 10.682, -151.805]}
+        rotation={[0, -0.816, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01034.geometry}
+        material={materials.ringLight}
+        position={[-99.094, 10.682, -151.805]}
+        rotation={[0, -0.816, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01035.geometry}
+        material={materials.ringLight}
+        position={[-99.094, 10.682, -151.805]}
+        rotation={[0, -0.816, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01036.geometry}
+        material={materials.ringLight}
+        position={[-99.094, 10.682, -151.805]}
+        rotation={[0, -0.816, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01037.geometry}
+        material={materials.ringLight}
+        position={[-99.094, 10.682, -151.805]}
+        rotation={[0, -0.816, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01038.geometry}
+        material={materials['ringLight.001']}
+        position={[-99.094, 10.682, -151.805]}
+        rotation={[0, -0.816, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01039.geometry}
+        material={materials.ringLight}
+        position={[-99.094, 10.682, -151.805]}
+        rotation={[0, -0.816, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01040.geometry}
+        material={materials.ringLight}
+        position={[-99.094, 10.682, -151.805]}
+        rotation={[0, -0.816, 0]}
+      />
+      <mesh
+        geometry={nodes.archWall01041.geometry}
+        material={materials.ringLight}
+        position={[-99.094, 10.682, -151.805]}
+        rotation={[0, -0.816, 0]}
       />
       <mesh
         geometry={nodes.entrance01.geometry}
@@ -354,6 +618,115 @@ export function Model(props) {
         material={nodes.skySphere.material}
         position={[-13.16, 3.64, -115.662]}
         scale={-596.281}
+      />
+      <mesh
+        geometry={nodes.entrance01001.geometry}
+        material={materials.ringLight}
+        position={[0, -0.028, -13.737]}
+      />
+      <mesh
+        geometry={nodes.entranceCurvedWall001.geometry}
+        material={materials.ringLight}
+        position={[-2.9, 4.287, -18.037]}
+        scale={[1, 0.972, 1]}
+      />
+      <mesh
+        geometry={nodes.entrance01002.geometry}
+        material={materials.ringLight}
+        position={[0, -0.028, -13.737]}
+      />
+      <mesh
+        geometry={nodes.entranceRoof001.geometry}
+        material={materials.ringLight}
+        position={[0, -0.039, -13.737]}
+      />
+      <mesh
+        geometry={nodes.entrance02004.geometry}
+        material={materials.ringLight}
+        position={[-1.231, 5.329, -29.409]}
+      />
+      <mesh
+        geometry={nodes.straightRoom002.geometry}
+        material={materials.ringLight}
+        position={[6.191, -0.001, -41.53]}
+      />
+      <mesh
+        geometry={nodes.entrance02002.geometry}
+        material={materials.ringLight}
+        position={[-1.231, 5.329, -29.409]}
+      />
+      <mesh
+        geometry={nodes.entrance02005.geometry}
+        material={materials.ringLight}
+        position={[-1.231, 5.329, -29.409]}
+      />
+      <mesh
+        geometry={nodes.entranceRoof002.geometry}
+        material={materials.ringLight}
+        position={[0, -0.039, -13.737]}
+      />
+      <mesh
+        geometry={nodes.entrance02003.geometry}
+        material={materials.ringLight}
+        position={[-1.231, 5.329, -29.409]}
+      />
+      <mesh
+        geometry={nodes.entrance02006.geometry}
+        material={materials.ringLight}
+        position={[-1.231, 5.329, -29.409]}
+      />
+      <mesh
+        geometry={nodes.straightRoom003.geometry}
+        material={materials.ringLight}
+        position={[6.191, -0.001, -41.53]}
+      />
+      <mesh
+        geometry={nodes.straightRoom004.geometry}
+        material={materials.ringLight}
+        position={[6.191, -0.001, -41.53]}
+      />
+      <mesh
+        geometry={nodes.straightRoom005.geometry}
+        material={materials.ringLight}
+        position={[6.191, -0.001, -41.53]}
+      />
+      <mesh
+        geometry={nodes.circularRoom002.geometry}
+        material={materials.ringLight}
+        position={[-38.268, 0.726, -114.098]}
+        rotation={[0, -0.113, 0]}
+      />
+      <mesh
+        geometry={nodes.straightRoom006.geometry}
+        material={materials.ringLight}
+        position={[6.191, -0.001, -41.53]}
+      />
+      <mesh
+        geometry={nodes.straightRoom007.geometry}
+        material={materials.ringLight}
+        position={[6.191, -0.001, -41.53]}
+      />
+      <mesh
+        geometry={nodes.straightRoom008.geometry}
+        material={materials.ringLight}
+        position={[6.191, -0.001, -41.53]}
+      />
+      <mesh
+        geometry={nodes.straightRoom009.geometry}
+        material={materials.ringLight}
+        position={[6.191, -0.001, -41.53]}
+      />
+      <mesh
+        geometry={nodes.circularRoom003.geometry}
+        material={materials.ringLight}
+        position={[-38.389, 0.726, -114.354]}
+        rotation={[0, -0.113, 0]}
+      />
+      <mesh
+        geometry={nodes.circularRoom004.geometry}
+        material={materials.ringLight}
+        position={[-38.268, 0.726, -114.098]}
+        rotation={[0, -0.113, 0]}
       />
       <mesh
         geometry={nodes.Sorento_Sculpture.geometry}
