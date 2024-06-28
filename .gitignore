@@ -23,6 +23,9 @@ dist-ssr
 *.sln
 *.sw?
 
-# /public/assets/models/
-# /public/assets/models/*
-# /public/assets/models
+/public/assets/models/
+/public/assets/models/*
+/public/assets/models
+public/assets/models/
+public/assets/models/*
+public/assets/models
