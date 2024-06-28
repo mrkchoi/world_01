@@ -1,9 +1,18 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import Scene from './Scene';
-import { Environment, PerspectiveCamera, Sky } from '@react-three/drei';
+import {
+  Cloud,
+  Clouds,
+  Environment,
+  OrbitControls,
+  PerspectiveCamera,
+  Sky,
+  Stars,
+} from '@react-three/drei';
 import { GlitchEffect, GlitchMode, BlendFunction } from 'postprocessing';
 import { Perf } from 'r3f-perf';
 import { Fog } from 'three';
+// import { loadCurveFromJSON } from '../utils/curveTools/loadCurveFromJSON';
 
 import nightSky from '/assets/hdri/moonless_golf_4k.exr';
 import { useControls } from 'leva';
@@ -24,10 +33,12 @@ import {
   Noise,
   Pixelation,
 } from '@react-three/postprocessing';
+import { useFrame, useThree } from '@react-three/fiber';
 
 function Experience() {
   return (
     <>
+      {/* <OrbitControls /> */}
       {/* <Perf position="top-right" /> */}
       <ambientLight intensity={5} />
       <directionalLight
@@ -44,29 +55,32 @@ function Experience() {
         shadow-camera-top={100}
         shadow-camera-bottom={-100}
       />
-      <PerspectiveCamera
+      {/* <PerspectiveCamera
         makeDefault
-        position={[57.42, -8.46, 142.57]}
-        fov={35}
+        // position={[57.42, -8.46, 142.57]}
+        fov={75}
         aspect={window.innerWidth / window.innerHeight}
         near={0.1}
         far={300}
-      />
+      /> */}
       <axesHelper args={[50]} />
       {/* <gridHelper args={[1000, 1000, 'white', 'gray']} /> */}
       <Scene />
-      <Dust />
-      {/* <Environment files={nightSky} /> */}
+      {/* <Dust /> */}
+      {/* <Environment files={nightSky} background={true} /> */}
       {/* <Environment preset="city" /> */}
       <Sky
-        castShadow={true}
-        distance={1000}
-        azimuth={0.55}
+        sunPosition={[-6.9, 34.4, -30.5]}
+        distance={500}
         turbidity={0}
-        rayleigh={0.1}
+        rayleigh={0.5}
+
+        // azimuth={0.55}
+        // turbidity={0}
+        // rayleigh={0.9}
       />
       {/* <color attach="background" args={['#000']} /> */}
-      {/* <fog attach="fog" args={['#eeeeee', 0, 1000]} /> */}
+      {/* <fog attach="fog" args={['#eeeeee', 50, 150]} /> */}
     </>
   );
 }

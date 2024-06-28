@@ -4,7 +4,11 @@ Command: npx gltfjsx@6.2.18 portfolio03.glb
 */
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { MeshReflectorMaterial, useGLTF } from '@react-three/drei';
+import {
+  MeshReflectorMaterial,
+  PerspectiveCamera,
+  useGLTF,
+} from '@react-three/drei';
 import { OrbitControls } from '../util/OrbitControlsCustom';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -23,11 +27,19 @@ import { create } from 'zustand';
 import { ACTIONS, CharacterControls } from '../util/characterControls';
 import { v4 as uuidv4 } from 'uuid';
 import { Fluid } from '@alienkitty/alien.js/three';
+import gsap from 'gsap';
+
+import { loadCurveFromJSON } from '../util/curveTools/CurveMethods';
+
 import videoSource from '/assets/video/zajno_showreel.mp4';
 import floorTexture from '/assets/textures/cineshader_floor.jpeg';
 import tileTexture from '/assets/textures/Tiles076_4K-JPG_Color.jpg';
 import bakedFloor from '/assets/textures/baked/bakedFloor01.webp';
 import floorTextureBaked01 from '/assets/textures/baked/floor001_Bake1_CyclesBake_COMBINED.png';
+import cloudTexture01 from '/assets/textures/clouds/cloud1.jpg';
+import cloudTexture02 from '/assets/textures/clouds/cloud2.jpg';
+import cloudTexture03 from '/assets/textures/clouds/cloud3.jpg';
+import Clouds from './Clouds';
 
 var textureURL =
   'https://s3-us-west-2.amazonaws.com/s.cdpn.io/17271/lroc_color_poles_1k.jpg';
@@ -79,6 +91,69 @@ const params = {
   // },
 };
 
+const LOOK_AT_POSITIONS = {
+  START: {
+    x: 2.413,
+    y: 3.56651711467,
+    z: -9.259,
+  },
+  SCULPTURE: {
+    x: -5.41359,
+    y: 3.56651711467,
+    z: -30.5556,
+  },
+  C1: {
+    x: 12.0733,
+    y: 3.56651711467,
+    z: -52.7959,
+  },
+  C2: {
+    x: -0.946431,
+    y: 3.56651711467,
+    z: -72.4519,
+  },
+  C3: {
+    x: 10.3668,
+    y: 3.56651711467,
+    z: -92.2975,
+  },
+  C4: {
+    x: -10.1108,
+    y: 3.56651711467,
+    z: -110.121,
+  },
+  PLANT: {
+    x: -30.9524,
+    y: 3.56651711467,
+    z: -107.544,
+  },
+  ROCK: {
+    x: -37.8722,
+    y: 3.56651711467,
+    z: -114.15,
+  },
+  C5: {
+    x: -31.094,
+    y: 3.56651711467,
+    z: -89.643,
+  },
+  C6: {
+    x: -59.5351,
+    y: 3.56651711467,
+    z: -98.9969,
+  },
+  C7: {
+    x: -64.5281,
+    y: 3.56651711467,
+    z: -118.526,
+  },
+  END: {
+    x: -97.2037,
+    y: 3.56651711467,
+    z: -164.411,
+  },
+};
+
 export const useStore = create((set) => ({
   animationsMap: new Map(),
   addAnimation: (key, value) =>
@@ -105,6 +180,7 @@ function Model(props) {
   );
 
   const { scene, camera, gl } = useThree();
+  const cameraGroup = useRef(null);
   const character = useRef(null);
   const mixer = useRef(null);
   const characterControls = useRef(null);
@@ -121,7 +197,77 @@ function Model(props) {
     { collapsed: true }
   );
 
-  const skySphere = useRef(null);
+  // const skySphere = useRef(null);
+
+  const scrollProgress = useRef(0);
+  const cameraPositionPathData = useRef(null);
+  const cameraLookAtPathData = useRef(null);
+
+  const curvePosition = {
+    x: 0,
+    y: 1.5,
+    z: 0,
+  };
+  // const curvePosition = {
+  //   x: 2.1601,
+  //   y: 2.0665,
+  //   z: 0,
+  // };
+  // const curvePosition = {
+  //   x: 2.1601,
+  //   y: 2.0665,
+  //   z: 44.755,
+  // };
+
+  useEffect(() => {
+    const loadCameraPositionData = async () => {
+      const JSONPath = '/assets/models/cameraPosition.json';
+      const data = await loadCurveFromJSON(JSONPath, 0xff0000);
+      // const curvePosition = nodes.cameraPosition.position;
+      data.mesh.position.set(curvePosition.x, curvePosition.y, curvePosition.z);
+      // scene.add(data.mesh);
+      cameraPositionPathData.current = data;
+    };
+    loadCameraPositionData();
+    const loadCameraLookAtData = async () => {
+      const JSONPath = '/assets/models/cameraLookAt.json';
+      const data = await loadCurveFromJSON(JSONPath, 0xff0000);
+      // const curvePosition = nodes.cameraPosition.position;
+      data.mesh.position.set(curvePosition.x, curvePosition.y, curvePosition.z);
+      // scene.add(data.mesh);
+      cameraLookAtPathData.current = data;
+    };
+    loadCameraLookAtData();
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = (e) => {
+      scrollProgress.current =
+        window.scrollY / (document.body.scrollHeight - window.innerHeight);
+      console.log(scrollProgress.current);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const rotationTarget = useRef({ x: 0, y: 0, z: 0 });
+
+  useEffect(() => {
+    // PARALLAX EFFECT
+    const handleMouseMove = (e) => {
+      const x = e.clientX / window.innerWidth - 0.5;
+      const y = e.clientY / window.innerHeight - 0.5;
+
+      rotationTarget.current.y = -x * 1;
+      rotationTarget.current.x = -y * 1;
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
 
   // const { iterate, density, velocity, pressure, curl, radius } = useControls(
   //   'Fluid',
@@ -250,309 +396,309 @@ function Model(props) {
   const tempMat = useMemo(() => new THREE.Matrix4(), []);
   const tempSegment = useMemo(() => new THREE.Line3(), []);
 
-  useEffect(() => {
-    mixer.current = new THREE.AnimationMixer(character.current);
+  // useEffect(() => {
+  //   mixer.current = new THREE.AnimationMixer(character.current);
 
-    characterAnimations.forEach((clip) => {
-      const action = mixer.current.clipAction(clip);
-      if (clip.name === 'Jumping') {
-        action.setLoop(THREE.LoopOnce);
-        action.timeScale = 0.5;
-      } else {
-        action.timeScale = 1.25;
-      }
-      addAnimation(clip.name, action);
-    });
-  }, []);
+  //   characterAnimations.forEach((clip) => {
+  //     const action = mixer.current.clipAction(clip);
+  //     if (clip.name === 'Jumping') {
+  //       action.setLoop(THREE.LoopOnce);
+  //       action.timeScale = 0.5;
+  //     } else {
+  //       action.timeScale = 1.25;
+  //     }
+  //     addAnimation(clip.name, action);
+  //   });
+  // }, []);
 
-  useEffect(() => {
-    if (controls.current && animationsMap && camera && mixer.current) {
-      characterControls.current = new CharacterControls(
-        character.current,
-        player.current,
-        mixer.current,
-        animationsMap,
-        controls.current,
-        camera,
-        ACTIONS.IDLE
-      );
-    }
-  }, [animationsMap, camera]);
+  // useEffect(() => {
+  //   if (controls.current && animationsMap && camera && mixer.current) {
+  //     characterControls.current = new CharacterControls(
+  //       character.current,
+  //       player.current,
+  //       mixer.current,
+  //       animationsMap,
+  //       controls.current,
+  //       camera,
+  //       ACTIONS.IDLE
+  //     );
+  //   }
+  // }, [animationsMap, camera]);
 
-  useEffect(() => {
-    const gltfScene = world.current;
+  // useEffect(() => {
+  //   const gltfScene = world.current;
 
-    const box = new THREE.Box3();
-    box.setFromObject(gltfScene);
-    box.getCenter(gltfScene.position).negate();
-    // console.log(box);
-    gltfScene.updateMatrixWorld(true);
+  //   const box = new THREE.Box3();
+  //   box.setFromObject(gltfScene);
+  //   box.getCenter(gltfScene.position).negate();
+  //   // console.log(box);
+  //   gltfScene.updateMatrixWorld(true);
 
-    const staticGenerator = new StaticGeometryGenerator(gltfScene);
-    staticGenerator.attributes = ['position'];
+  //   const staticGenerator = new StaticGeometryGenerator(gltfScene);
+  //   staticGenerator.attributes = ['position'];
 
-    const mergedGeometry = staticGenerator.generate();
-    mergedGeometry.boundsTree = new MeshBVH(mergedGeometry);
+  //   const mergedGeometry = staticGenerator.generate();
+  //   mergedGeometry.boundsTree = new MeshBVH(mergedGeometry);
 
-    collider.current = new THREE.Mesh(mergedGeometry);
-    collider.current.material.wireframe = true;
-    collider.current.material.opacity = 0.5;
-    collider.current.material.transparent = true;
+  //   collider.current = new THREE.Mesh(mergedGeometry);
+  //   collider.current.material.wireframe = true;
+  //   collider.current.material.opacity = 0.5;
+  //   collider.current.material.transparent = true;
 
-    visualizer.current = new MeshBVHHelper(
-      collider.current,
-      params.visualizeDepth
-    );
+  //   visualizer.current = new MeshBVHHelper(
+  //     collider.current,
+  //     params.visualizeDepth
+  //   );
 
-    scene.add(visualizer.current);
-    scene.add(collider.current);
-    setSceneReady(true);
+  //   scene.add(visualizer.current);
+  //   scene.add(collider.current);
+  //   setSceneReady(true);
 
-    return () => {
-      if (collider.current) {
-        scene.remove(collider.current);
-      }
-      if (visualizer.current) {
-        scene.remove(visualizer.current);
-      }
-    };
-  }, [loader, scene]);
+  //   return () => {
+  //     if (collider.current) {
+  //       scene.remove(collider.current);
+  //     }
+  //     if (visualizer.current) {
+  //       scene.remove(visualizer.current);
+  //     }
+  //   };
+  // }, [loader, scene]);
 
-  useEffect(() => {
-    if (!isSceneReady) return;
-    if (player.current) {
-      scene.remove(player.current);
-    }
-    const radius = 0.5;
-    const playerCapsule = new THREE.Mesh(
-      new RoundedBoxGeometry(radius * 2, 2.0, radius * 2, 10, 0.5),
-      new THREE.MeshBasicMaterial({
-        transparent: true,
-        opacity: 0,
-        // color: 'white',
-        wireframe: false,
-        depthTest: false,
-        depthWrite: false,
-      })
-    );
+  // useEffect(() => {
+  //   if (!isSceneReady) return;
+  //   if (player.current) {
+  //     scene.remove(player.current);
+  //   }
+  //   const radius = 0.5;
+  //   const playerCapsule = new THREE.Mesh(
+  //     new RoundedBoxGeometry(radius * 2, 2.0, radius * 2, 10, 0.5),
+  //     new THREE.MeshBasicMaterial({
+  //       transparent: true,
+  //       opacity: 0,
+  //       // color: 'white',
+  //       wireframe: false,
+  //       depthTest: false,
+  //       depthWrite: false,
+  //     })
+  //   );
 
-    // const axesHelper = new THREE.AxesHelper(1);
-    // playerCapsule.add(axesHelper);
+  //   // const axesHelper = new THREE.AxesHelper(1);
+  //   // playerCapsule.add(axesHelper);
 
-    const group = new THREE.Group();
-    group.add(playerCapsule);
-    group.add(character.current);
-    player.current = group;
+  //   const group = new THREE.Group();
+  //   group.add(playerCapsule);
+  //   group.add(character.current);
+  //   player.current = group;
 
-    playerCapsule.geometry.translate(0, -radius, 0);
-    character.current.position.set(0, -radius * 3, 0);
-    // player.current.position.set(0, 10, 0);
-    // player.current.position.set(15.75, -3, 30);
-    player.current.position.set(
-      params.startPosition.x,
-      params.startPosition.y,
-      params.startPosition.z
-    );
-    player.current.capsuleInfo = {
-      radius: radius,
-      segment: new THREE.Line3(
-        new THREE.Vector3(),
-        new THREE.Vector3(0, -1.0, 0.0)
-      ),
-    };
-    // player.current.castShadow = true;
-    // player.current.receiveShadow = true;
-    // player.current.material.shadowSide = 2;
-    scene.add(group);
-    reset();
-  }, [isSceneReady]);
+  //   playerCapsule.geometry.translate(0, -radius, 0);
+  //   character.current.position.set(0, -radius * 3, 0);
+  //   // player.current.position.set(0, 10, 0);
+  //   // player.current.position.set(15.75, -3, 30);
+  //   player.current.position.set(
+  //     params.startPosition.x,
+  //     params.startPosition.y,
+  //     params.startPosition.z
+  //   );
+  //   player.current.capsuleInfo = {
+  //     radius: radius,
+  //     segment: new THREE.Line3(
+  //       new THREE.Vector3(),
+  //       new THREE.Vector3(0, -1.0, 0.0)
+  //     ),
+  //   };
+  //   // player.current.castShadow = true;
+  //   // player.current.receiveShadow = true;
+  //   // player.current.material.shadowSide = 2;
+  //   scene.add(group);
+  //   reset();
+  // }, [isSceneReady]);
 
-  useEffect(() => {
-    // if (!controls.current) return;
-    if (firstPerson) {
-      controls.current.maxPolarAngle = Math.PI;
-      controls.current.minDistance = 1e-4;
-      controls.current.maxDistance = 1e-4;
-    } else {
-      camera.position
-        .sub(controls.current.target)
-        .normalize()
-        .multiplyScalar(8)
-        .add(controls.current.target);
+  // useEffect(() => {
+  //   // if (!controls.current) return;
+  //   if (firstPerson) {
+  //     controls.current.maxPolarAngle = Math.PI;
+  //     controls.current.minDistance = 1e-4;
+  //     controls.current.maxDistance = 1e-4;
+  //   } else {
+  //     camera.position
+  //       .sub(controls.current.target)
+  //       .normalize()
+  //       .multiplyScalar(8)
+  //       .add(controls.current.target);
 
-      controls.current.maxPolarAngle = Math.PI * 0.55;
-      controls.current.minDistance = 2;
-      controls.current.maxDistance = 10;
-    }
-  }, [camera.position, firstPerson, isSceneReady]);
+  //     controls.current.maxPolarAngle = Math.PI * 0.55;
+  //     controls.current.minDistance = 2;
+  //     controls.current.maxDistance = 10;
+  //   }
+  // }, [camera.position, firstPerson, isSceneReady]);
 
-  const reset = () => {
-    playerVelocity.set(0, 0, 0);
-    // player.current.position.set(0, 20, 0);
-    player.current.position.set(
-      params.startPosition.x,
-      params.startPosition.y,
-      params.startPosition.z
-    );
-    camera.position.sub(controls.current.target);
-    controls.current.target.copy(player.current.position);
-    camera.position.add(player.current.position);
-    controls.current.update();
-  };
+  // const reset = () => {
+  //   playerVelocity.set(0, 0, 0);
+  //   // player.current.position.set(0, 20, 0);
+  //   player.current.position.set(
+  //     params.startPosition.x,
+  //     params.startPosition.y,
+  //     params.startPosition.z
+  //   );
+  //   camera.position.sub(controls.current.target);
+  //   controls.current.target.copy(player.current.position);
+  //   camera.position.add(player.current.position);
+  //   controls.current.update();
+  // };
 
-  function updatePlayer(delta) {
-    if (playerIsOnGround.current) {
-      playerVelocity.y = delta * gravity;
-    } else {
-      playerVelocity.y += delta * gravity;
-    }
+  // function updatePlayer(delta) {
+  //   if (playerIsOnGround.current) {
+  //     playerVelocity.y = delta * gravity;
+  //   } else {
+  //     playerVelocity.y += delta * gravity;
+  //   }
 
-    player.current.position.addScaledVector(playerVelocity, delta);
+  //   player.current.position.addScaledVector(playerVelocity, delta);
 
-    // console.log(player.current.position);
-    // move the player
-    const angle = controls.current.getAzimuthalAngle() || 0;
-    const shift = keyboard['ShiftLeft'] || keyboard['ShiftRight'];
+  //   // console.log(player.current.position);
+  //   // move the player
+  //   const angle = controls.current.getAzimuthalAngle() || 0;
+  //   const shift = keyboard['ShiftLeft'] || keyboard['ShiftRight'];
 
-    if (keyboard['KeyW']) {
-      tempVector.set(0, 0, -1).applyAxisAngle(upVector, angle);
-      player.current.position.addScaledVector(
-        tempVector,
-        delta * (shift ? params.playerRunSpeed : params.playerWalkSpeed)
-      );
-    }
+  //   if (keyboard['KeyW']) {
+  //     tempVector.set(0, 0, -1).applyAxisAngle(upVector, angle);
+  //     player.current.position.addScaledVector(
+  //       tempVector,
+  //       delta * (shift ? params.playerRunSpeed : params.playerWalkSpeed)
+  //     );
+  //   }
 
-    if (keyboard['KeyS']) {
-      tempVector.set(0, 0, 1).applyAxisAngle(upVector, angle);
-      player.current.position.addScaledVector(
-        tempVector,
-        delta * (shift ? params.playerRunSpeed : params.playerWalkSpeed)
-      );
-    }
+  //   if (keyboard['KeyS']) {
+  //     tempVector.set(0, 0, 1).applyAxisAngle(upVector, angle);
+  //     player.current.position.addScaledVector(
+  //       tempVector,
+  //       delta * (shift ? params.playerRunSpeed : params.playerWalkSpeed)
+  //     );
+  //   }
 
-    if (keyboard['KeyA']) {
-      tempVector.set(-1, 0, 0).applyAxisAngle(upVector, angle);
-      player.current.position.addScaledVector(
-        tempVector,
-        delta * (shift ? params.playerRunSpeed : params.playerWalkSpeed)
-      );
-    }
+  //   if (keyboard['KeyA']) {
+  //     tempVector.set(-1, 0, 0).applyAxisAngle(upVector, angle);
+  //     player.current.position.addScaledVector(
+  //       tempVector,
+  //       delta * (shift ? params.playerRunSpeed : params.playerWalkSpeed)
+  //     );
+  //   }
 
-    if (keyboard['KeyD']) {
-      tempVector.set(1, 0, 0).applyAxisAngle(upVector, angle);
-      player.current.position.addScaledVector(
-        tempVector,
-        delta * (shift ? params.playerRunSpeed : params.playerWalkSpeed)
-      );
-    }
+  //   if (keyboard['KeyD']) {
+  //     tempVector.set(1, 0, 0).applyAxisAngle(upVector, angle);
+  //     player.current.position.addScaledVector(
+  //       tempVector,
+  //       delta * (shift ? params.playerRunSpeed : params.playerWalkSpeed)
+  //     );
+  //   }
 
-    player.current.updateMatrixWorld();
+  //   player.current.updateMatrixWorld();
 
-    // adjust player position based on collisions
-    const capsuleInfo = player.current.capsuleInfo;
-    tempBox.makeEmpty();
-    tempMat.copy(collider.current.matrixWorld).invert();
-    tempSegment.copy(capsuleInfo.segment);
+  //   // adjust player position based on collisions
+  //   const capsuleInfo = player.current.capsuleInfo;
+  //   tempBox.makeEmpty();
+  //   tempMat.copy(collider.current.matrixWorld).invert();
+  //   tempSegment.copy(capsuleInfo.segment);
 
-    // get the position of the capsule in the local space of the collider
-    tempSegment.start
-      .applyMatrix4(player.current.matrixWorld)
-      .applyMatrix4(tempMat);
-    tempSegment.end
-      .applyMatrix4(player.current.matrixWorld)
-      .applyMatrix4(tempMat);
+  //   // get the position of the capsule in the local space of the collider
+  //   tempSegment.start
+  //     .applyMatrix4(player.current.matrixWorld)
+  //     .applyMatrix4(tempMat);
+  //   tempSegment.end
+  //     .applyMatrix4(player.current.matrixWorld)
+  //     .applyMatrix4(tempMat);
 
-    // get the axis aligned bounding box of the capsule
-    tempBox.expandByPoint(tempSegment.start);
-    tempBox.expandByPoint(tempSegment.end);
+  //   // get the axis aligned bounding box of the capsule
+  //   tempBox.expandByPoint(tempSegment.start);
+  //   tempBox.expandByPoint(tempSegment.end);
 
-    tempBox.min.addScalar(-capsuleInfo.radius);
-    tempBox.max.addScalar(capsuleInfo.radius);
+  //   tempBox.min.addScalar(-capsuleInfo.radius);
+  //   tempBox.max.addScalar(capsuleInfo.radius);
 
-    collider.current.geometry.boundsTree.shapecast({
-      intersectsBounds: (box) => box.intersectsBox(tempBox),
+  //   collider.current.geometry.boundsTree.shapecast({
+  //     intersectsBounds: (box) => box.intersectsBox(tempBox),
 
-      intersectsTriangle: (tri) => {
-        // check if the triangle is intersecting the capsule and adjust the
-        // capsule position if it is.
-        const triPoint = tempVector;
-        const capsulePoint = tempVector2;
+  //     intersectsTriangle: (tri) => {
+  //       // check if the triangle is intersecting the capsule and adjust the
+  //       // capsule position if it is.
+  //       const triPoint = tempVector;
+  //       const capsulePoint = tempVector2;
 
-        const distance = tri.closestPointToSegment(
-          tempSegment,
-          triPoint,
-          capsulePoint
-        );
-        if (distance < capsuleInfo.radius) {
-          const depth = capsuleInfo.radius - distance;
-          const direction = capsulePoint.sub(triPoint).normalize();
+  //       const distance = tri.closestPointToSegment(
+  //         tempSegment,
+  //         triPoint,
+  //         capsulePoint
+  //       );
+  //       if (distance < capsuleInfo.radius) {
+  //         const depth = capsuleInfo.radius - distance;
+  //         const direction = capsulePoint.sub(triPoint).normalize();
 
-          tempSegment.start.addScaledVector(direction, depth);
-          tempSegment.end.addScaledVector(direction, depth);
-        }
-      },
-    });
+  //         tempSegment.start.addScaledVector(direction, depth);
+  //         tempSegment.end.addScaledVector(direction, depth);
+  //       }
+  //     },
+  //   });
 
-    // get the adjusted position of the capsule collider in world space after checking
-    // triangle collisions and moving it. capsuleInfo.segment.start is assumed to be
-    // the origin of the player model.
-    const newPosition = tempVector;
-    newPosition
-      .copy(tempSegment.start)
-      .applyMatrix4(collider.current.matrixWorld);
+  //   // get the adjusted position of the capsule collider in world space after checking
+  //   // triangle collisions and moving it. capsuleInfo.segment.start is assumed to be
+  //   // the origin of the player model.
+  //   const newPosition = tempVector;
+  //   newPosition
+  //     .copy(tempSegment.start)
+  //     .applyMatrix4(collider.current.matrixWorld);
 
-    // check how much the collider was moved
-    const deltaVector = tempVector2;
-    deltaVector.subVectors(newPosition, player.current.position);
+  //   // check how much the collider was moved
+  //   const deltaVector = tempVector2;
+  //   deltaVector.subVectors(newPosition, player.current.position);
 
-    // if the player was primarily adjusted vertically we assume it's on something we should consider ground
-    playerIsOnGround.current =
-      deltaVector.y > Math.abs(delta * playerVelocity.y * 0.25);
+  //   // if the player was primarily adjusted vertically we assume it's on something we should consider ground
+  //   playerIsOnGround.current =
+  //     deltaVector.y > Math.abs(delta * playerVelocity.y * 0.25);
 
-    const offset = Math.max(0.0, deltaVector.length() - 1e-5);
-    deltaVector.normalize().multiplyScalar(offset);
+  //   const offset = Math.max(0.0, deltaVector.length() - 1e-5);
+  //   deltaVector.normalize().multiplyScalar(offset);
 
-    // adjust the player model
-    player.current.position.add(deltaVector);
+  //   // adjust the player model
+  //   player.current.position.add(deltaVector);
 
-    if (!playerIsOnGround.current) {
-      deltaVector.normalize();
-      playerVelocity.addScaledVector(
-        deltaVector,
-        -deltaVector.dot(playerVelocity)
-      );
-    } else {
-      playerVelocity.set(0, 0, 0);
-    }
+  //   if (!playerIsOnGround.current) {
+  //     deltaVector.normalize();
+  //     playerVelocity.addScaledVector(
+  //       deltaVector,
+  //       -deltaVector.dot(playerVelocity)
+  //     );
+  //   } else {
+  //     playerVelocity.set(0, 0, 0);
+  //   }
 
-    // adjust the camera
-    camera.position.sub(controls.current.target);
-    const newTarget = player.current.position.clone();
-    newTarget.y += params.cameraOffsetY;
-    controls.current.target.copy(newTarget);
-    camera.position.add(newTarget);
+  //   // adjust the camera
+  //   camera.position.sub(controls.current.target);
+  //   const newTarget = player.current.position.clone();
+  //   newTarget.y += params.cameraOffsetY;
+  //   controls.current.target.copy(newTarget);
+  //   camera.position.add(newTarget);
 
-    // if the player has fallen too far below the level reset their position to the start
-    if (player.current.position.y < -25) {
-      reset();
-    }
-  }
+  //   // if the player has fallen too far below the level reset their position to the start
+  //   if (player.current.position.y < -25) {
+  //     reset();
+  //   }
+  // }
 
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (keyboard['ShiftLeft'] && keyboard['KeyF']) {
-        setFirstPerson({ firstPerson: isFirstPerson.current ? false : true });
-        isFirstPerson.current = !isFirstPerson.current;
-      }
-    };
+  // useEffect(() => {
+  //   const handleKeyDown = (event) => {
+  //     if (keyboard['ShiftLeft'] && keyboard['KeyF']) {
+  //       setFirstPerson({ firstPerson: isFirstPerson.current ? false : true });
+  //       isFirstPerson.current = !isFirstPerson.current;
+  //     }
+  //   };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  //   window.addEventListener('keydown', handleKeyDown);
+  //   return () => window.removeEventListener('keydown', handleKeyDown);
+  // }, []);
 
-  useEffect(() => {
-    console.log(nodes.circularRoomPoolWater);
-  }, []);
+  // useEffect(() => {
+  //   console.log(nodes.circularRoomPoolWater);
+  // }, []);
 
   const videoTexture = useMemo(() => {
     const texture = new THREE.VideoTexture(video);
@@ -639,48 +785,73 @@ function Model(props) {
     });
   }, []);
 
-  // const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(512);
-  // cubeRenderTarget.texture.type = THREE.HalfFloatType;
+  const getLookAtPosition = (scrollProgress) => {
+    let key = 'START';
+    if (scrollProgress < 0.045) {
+      key = 'START';
+    } else if (scrollProgress < 0.08) {
+      key = 'SCULPTURE';
+    } else if (scrollProgress < 0.18) {
+      key = 'C1';
+    } else if (scrollProgress < 0.285) {
+      key = 'C2';
+    } else if (scrollProgress < 0.37) {
+      key = 'C3';
+    } else if (scrollProgress < 0.45) {
+      key = 'C4';
+    } else if (scrollProgress < 0.49) {
+      key = 'PLANT';
+    } else if (scrollProgress < 0.6) {
+      key = 'C5';
+    } else if (scrollProgress < 0.686) {
+      key = 'C6';
+    } else if (scrollProgress < 0.77) {
+      key = 'C7';
+    } else if (scrollProgress < 0.88) {
+      key = 'ROCK';
+      // key = 'END';
+    } else {
+      key = 'END';
+    }
+    return key;
+  };
 
-  // useEffect(() => {
-  //   if (cubeRenderTarget.current) {
-  //     cubeRenderTarget.current.texture.type = THREE.HalfFloatType;
-  //   }
-  // }, []);
-  // const cubeCamera = new THREE.CubeCamera(0.1, 5000, cubeRenderTarget);
-  // scene.add(cubeCamera);
+  const newLookAtPosition = useRef(
+    new THREE.Vector3(
+      LOOK_AT_POSITIONS.START.x,
+      LOOK_AT_POSITIONS.START.y,
+      LOOK_AT_POSITIONS.START.z
+    )
+  );
 
-  // const accentLightMaterial = useMemo(() => {
-  //   return new THREE.MeshBasicMaterial({
-  //     color: '#aaaaaa',
-  //   });
-  // }, []);
+  const rotationMatrix = new THREE.Matrix4();
+  const targetQuarternion = new THREE.Quaternion();
 
   useFrame((state, delta) => {
-    if (collider.current) {
-      collider.current.visible = displayCollider;
-      visualizer.current.visible = displayBVH;
-      visualizer.current.depth = visualizeDepth;
-      visualizer.current.update();
-    }
-    if (collider.current && player.current) {
-      for (let i = 0; i < params.physicsSteps; i++) {
-        updatePlayer(delta / params.physicsSteps);
-      }
-    }
+    // if (collider.current) {
+    //   collider.current.visible = displayCollider;
+    //   visualizer.current.visible = displayBVH;
+    //   visualizer.current.depth = visualizeDepth;
+    //   visualizer.current.update();
+    // }
+    // if (collider.current && player.current) {
+    //   for (let i = 0; i < params.physicsSteps; i++) {
+    //     updatePlayer(delta / params.physicsSteps);
+    //   }
+    // }
 
-    if (keyboard['Space'] && playerIsOnGround.current) {
-      playerVelocity.y = params.playerJumpHeight;
-      playerIsOnGround.current = false;
-    }
+    // if (keyboard['Space'] && playerIsOnGround.current) {
+    //   playerVelocity.y = params.playerJumpHeight;
+    //   playerIsOnGround.current = false;
+    // }
 
-    if (characterControls.current) {
-      characterControls.current.update(
-        delta,
-        keyboard,
-        playerIsOnGround.current
-      );
-    }
+    // if (characterControls.current) {
+    //   characterControls.current.update(
+    //     delta,
+    //     keyboard,
+    //     playerIsOnGround.current
+    //   );
+    // }
 
     // update uTime uniform
     uniforms.uTime.value = state.clock.elapsedTime;
@@ -703,13 +874,94 @@ function Model(props) {
     // if (cubeCamera) {
     //   cubeCamera.update(gl, scene);
     // }
+
+    if (cameraPositionPathData.current && cameraLookAtPathData.current) {
+      const curve = cameraPositionPathData.current.curve;
+      const point = curve.getPoint(scrollProgress.current);
+      // points are relative to curve global position so we need to add the camera position
+      point.add(curvePosition);
+
+      // gsap.to(cameraGroup.current.position, {
+      //   x: point.x,
+      //   y: point.y,
+      //   z: point.z,
+      //   duration: 0.75,
+      // });
+      gsap.to(camera.position, {
+        x: point.x - rotationTarget.current.y,
+        y: point.y + rotationTarget.current.x,
+        z: point.z,
+        duration: 0.75,
+      });
+
+      const lookAtKey = getLookAtPosition(scrollProgress.current);
+      const lookAtPosition = LOOK_AT_POSITIONS[lookAtKey];
+
+      // const newLookAtPosition = new THREE.Vector3();
+
+      // gsap.to(newLookAtPosition.current, {
+      //   x: lookAtPosition.x,
+      //   y: lookAtPosition.y,
+      //   z: lookAtPosition.z,
+      //   duration: 1,
+      //   onUpdate: () => {
+      //     camera.lookAt(newLookAtPosition.current);
+      //   },
+      // });
+
+      // const target = cameraGroup.current.clone();
+      const target = camera.clone();
+      target.lookAt(
+        new THREE.Vector3(lookAtPosition.x, lookAtPosition.y, lookAtPosition.z)
+      );
+
+      // rotate camera group 180 degrees to face the right direction
+      // cameraGroup.current.rotation.y = Math.PI;
+      // camera.quaternion.slerp(target.quaternion, 0.05);
+
+      // // log the camera forward vector
+      // const forward = new THREE.Vector3(0, 0, -1);
+      // forward.applyQuaternion(camera.quaternion);
+
+      // based on the forward vector, rotate camera left/right/up/down based on mouse movement variable rotationTarget
+      // const rotationMatrix = new THREE.Matrix4();
+      // const targetQuarternion = new THREE.Quaternion();
+      // rotationMatrix.makeRotationFromEuler(
+      //   new THREE.Euler(
+      //     rotationTarget.current.x,
+      //     rotationTarget.current.y,
+      //     rotationTarget.current.z
+      //   )
+      // );
+      // targetQuarternion.setFromRotationMatrix(rotationMatrix);
+      // camera.quaternion.slerp(targetQuarternion, 0.05);
+
+      camera.quaternion.slerp(target.quaternion, 0.025);
+      // cameraGroup.current.quaternion.slerp(target.quaternion, 0.025);
+
+      // if (rotationTarget.current) {
+      //   // rotate scene based on mouse movement for parallax effect
+      //   gsap.to(world.current.rotation, {
+      //     x: rotationTarget.current.x,
+      //     y: rotationTarget.current.y,
+      //     z: rotationTarget.current.z,
+      //     duration: 0.5,
+      //   });
+      // }
+    }
+
+    // sync camera rotation with cameraGroup rotation
+    // camera.quaternion.copy(cameraGroup.current.quaternion);
   });
 
+  const waterBack = useRef(null);
+
   useEffect(() => {
-    // console.log('materials.floor001_Baked: ', materials.floor001_Baked);
-    // gl.toneMapping = THREE.ACESFilmicToneMapping;
-    // materials.floor001_Baked.toneMapped = false;
-    // gl.outputEncoding = THREE.sRGBEncoding;
+    if (waterBack.current) {
+      // rotate the water back plane
+      // waterBack.current.rotation.y = 0;
+      waterBack.current.rotation.x = -Math.PI * 0.5;
+    }
   }, []);
 
   const floorTexture01 = useMemo(() => {
@@ -718,53 +970,71 @@ function Model(props) {
     return texture;
   }, []);
 
+  const characterGroup = (
+    <group ref={character} {...props} dispose={null}>
+      <group name="Scene">
+        <group
+          name="Armature"
+          rotation={[Math.PI / 2, 0, Math.PI]}
+          scale={0.011}
+        >
+          <primitive object={characterNodes.mixamorig1Hips} />
+          <skinnedMesh
+            name="Ch45"
+            geometry={characterNodes.Ch45.geometry}
+            // material={characterMaterials.Ch45_Body}
+            skeleton={characterNodes.Ch45.skeleton}
+            castShadow
+            receiveShadow
+          >
+            {/* <meshLambertMaterial /> */}
+            <meshStandardMaterial
+              color="white"
+              // map={videoTexture}
+              roughness={0}
+              metalness={1}
+              emissive={'#ddd'}
+              emissiveIntensity={0.3}
+              wireframe={true}
+              wireframeLinewidth={0.1}
+            />
+            {/* <meshToonMaterial color="white" /> */}
+            {/* <meshMatcapMaterial /> */}
+            {/* <meshStandardMaterial
+                color="white"
+                map={videoTexture}
+                roughness={1}
+              /> */}
+          </skinnedMesh>
+        </group>
+      </group>
+    </group>
+  );
+
   return (
     <>
-      <OrbitControls
+      {/* <OrbitControls
         ref={controls}
         mouseButtons={{
           LEFT: THREE.MOUSE.ROTATE,
           RIGHT: THREE.MOUSE.ROTATE,
           MIDDLE: THREE.MOUSE.ROTATE,
         }}
-      />
-      <group ref={character} {...props} dispose={null}>
-        <group name="Scene">
-          <group
-            name="Armature"
-            rotation={[Math.PI / 2, 0, Math.PI]}
-            scale={0.011}
-          >
-            <primitive object={characterNodes.mixamorig1Hips} />
-            <skinnedMesh
-              name="Ch45"
-              geometry={characterNodes.Ch45.geometry}
-              // material={characterMaterials.Ch45_Body}
-              skeleton={characterNodes.Ch45.skeleton}
-              castShadow
-              receiveShadow
-            >
-              {/* <meshLambertMaterial /> */}
-              <meshStandardMaterial
-                color="white"
-                // map={videoTexture}
-                roughness={0}
-                metalness={1}
-                emissive={'#ddd'}
-                emissiveIntensity={0.3}
-                wireframe={true}
-                wireframeLinewidth={0.1}
-              />
-              {/* <meshToonMaterial color="white" /> */}
-              {/* <meshMatcapMaterial /> */}
-              {/* <meshStandardMaterial
-                color="white"
-                map={videoTexture}
-                roughness={1}
-              /> */}
-            </skinnedMesh>
-          </group>
-        </group>
+      /> */}
+      <Clouds />
+
+      <group ref={cameraGroup}>
+        <PerspectiveCamera
+          makeDefault
+          // ref={camera}
+          fov={75}
+          aspect={window.innerWidth / window.innerHeight}
+          near={0.1}
+          far={2000}
+          // far={300}
+          zoom={1}
+          // position={[0, 1.5, 0]}
+        />
       </group>
       <group ref={world} {...props} dispose={null}>
         <group
@@ -938,6 +1208,16 @@ function Model(props) {
         >
           <circleGeometry args={[15, 25]} />
           <MeshReflectorMaterial
+            // blur={[300, 100]}
+            // resolution={2048}
+            // mixBlur={1}
+            // mixStrength={50}
+            // roughness={0.2}
+            // depthScale={1.2}
+            // minDepthThreshold={0.4}
+            // maxDepthThreshold={1.4}
+            // color="#0f1112"
+            // metalness={0}
             blur={[300, 100]}
             resolution={2048}
             mixBlur={1}
@@ -1065,12 +1345,12 @@ function Model(props) {
           material={materials.sculpture}
           position={[16.34, 1.018, -34.641]}
         />
-        <mesh
+        {/* <mesh
           geometry={nodes.outdoorWaterBarrier.geometry}
           material={materials.benches}
           position={[-38.623, -0.785, -159.184]}
           rotation={[0, -0.731, 0]}
-        />
+        /> */}
         <mesh
           geometry={nodes.human001.geometry}
           material={materials.logoSculpture}
@@ -1105,7 +1385,7 @@ function Model(props) {
         <mesh
           geometry={nodes.island001.geometry}
           material={materials['rock.001']}
-          position={[-250.715, 1.248, -296.708]}
+          position={[-250.715, 0, -296.708]}
           scale={36.713}
         />
         <mesh
@@ -1122,20 +1402,20 @@ function Model(props) {
           rotation={[0, 1.5, 0]}
           scale={23.858}
         />
-        <mesh
+        {/* <mesh
           geometry={nodes.island005.geometry}
           material={materials['rock.001']}
           position={[-140.402, -0.223, -40.052]}
           rotation={[0, -0.274, 0]}
           scale={42.645}
-        />
-        <mesh
+        /> */}
+        {/* <mesh
           geometry={nodes.island004.geometry}
           material={materials['rock.001']}
           position={[-82.945, -1.914, -44.586]}
           rotation={[0, 1.252, 0]}
           scale={42.295}
-        />
+        /> */}
         <mesh
           geometry={nodes.island006.geometry}
           material={materials['rock.001']}
@@ -1146,7 +1426,7 @@ function Model(props) {
         <mesh
           geometry={nodes.island008.geometry}
           material={materials['rock.001']}
-          position={[106.985, -0.223, -147.611]}
+          position={[185.985, -0.223, -265.611]}
           rotation={[0, -0.515, 0]}
           scale={36.713}
         />
@@ -1162,30 +1442,53 @@ function Model(props) {
           material={materials.sculpture}
           position={[-290.987, 7.529, -331.563]}
         />
-        <mesh
-          geometry={nodes.outdoorWaterBack.geometry}
-          material={materials.ocean}
-          position={[-120.208, 1.248, -184.074]}
-          rotation={[0, -0.701, 0]}
+        {/* <mesh
+          ref={waterBack}
+          // geometry={nodes.outdoorWaterBack.geometry}
+          // material={materials.ocean}
+          position={[-217.3, 1.248, -313.5]}
+          // rotation={[-Math.PI * 0.5, 4, 0]}
+          // rotation-z={Math.PI}
+          // rotation-x={-Math.PI * 0.5}
         >
-          {/* <MeshReflectorMaterial
-            blur={[300, 100]}
+          <planeGeometry args={[400, 400]} />
+          <MeshReflectorMaterial
+            blur={1}
             resolution={2048}
             mixBlur={1}
-            mixStrength={50}
-            roughness={0.2}
-            depthScale={1.2}
-            minDepthThreshold={0.4}
+            mixStrength={100}
+            roughness={0.3}
+            depthScale={0.2}
+            minDepthThreshold={0.9}
             maxDepthThreshold={1.4}
             color="#0f1112"
             metalness={0}
-          /> */}
-        </mesh>
-        <mesh
+          />
+        </mesh> */}
+        {/* <mesh
           geometry={nodes.outdoorWaterFront.geometry}
           material={materials.ocean}
           position={[2.279, -0.019, -70.591]}
-        />
+        /> */}
+        <mesh
+          rotation={nodes.outdoorWaterFront.rotation}
+          rotation-x={-Math.PI * 0.5}
+          position={[2.279, -0.01, -70.591]}
+        >
+          <planeGeometry args={[800, 800]} />
+          <MeshReflectorMaterial
+            blur={1}
+            resolution={2048}
+            mixBlur={1}
+            mixStrength={100}
+            roughness={0.3}
+            depthScale={0.2}
+            minDepthThreshold={0.9}
+            maxDepthThreshold={1.4}
+            color="#0f1112"
+            metalness={0}
+          />
+        </mesh>
         <mesh
           geometry={nodes.plantFrontGroup.geometry}
           material={materials['plant-1.001']}

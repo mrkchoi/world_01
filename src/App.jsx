@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber';
 import './App.css';
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import Experience from './components/Experience';
 import BackgroundAudio from './components/BackgroundAudio';
 import * as THREE from 'three';
@@ -20,9 +20,11 @@ import {
 import { BlendFunction } from 'postprocessing';
 import { useControls } from 'leva';
 import Header from './components/Header';
+import { Loader, ScrollControls } from '@react-three/drei';
 
 function App() {
   const { toneMappingExposure, toneMappingType } = useControls(
+    'Tone Mapping',
     {
       toneMappingExposure: {
         value: 1.5,
@@ -47,7 +49,7 @@ function App() {
   );
 
   return (
-    <>
+    <div className="h-[2000vh] w-full">
       <div className="fixed left-0 top-0 h-screen w-full">
         <Canvas
           shadows
@@ -68,13 +70,17 @@ function App() {
               blendFunction={BlendFunction.NORMAL}
             />
           </EffectComposer> */}
-          <Experience />
+          <Suspense fallback={null}>
+            {/* <ScrollControls pages={12}> */}
+            <Experience />
+            {/* </ScrollControls> */}
+          </Suspense>
         </Canvas>
       </div>
       <Header />
-      <Instructions />
+      {/* <Instructions /> */}
       <BackgroundAudio />
-    </>
+    </div>
   );
 }
 

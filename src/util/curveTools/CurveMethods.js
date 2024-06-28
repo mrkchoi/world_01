@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import { loadJSON } from './JSONHelper';
 
-export async function loadCurveFromJSON(jsonPath) {
+export async function loadCurveFromJSON(jsonPath, color = 0xffffff) {
   let curveJSON = await loadJSON(jsonPath);
   let curve = createCurveFromJSON(curveJSON);
-  let curveTubeMesh = getTubeFromCurve(curve);
+  let curveTubeMesh = getTubeFromCurve(curve, color);
 
   let curveAndMesh = {
     curve: curve,
@@ -36,10 +36,10 @@ function createCurveFromJSON(json) {
   return curve;
 }
 
-function getTubeFromCurve(curve) {
+function getTubeFromCurve(curve, color = 0xffffff) {
   const geometry = new THREE.TubeGeometry(curve, 100, 0.05, 8, curve.closed);
   const material = new THREE.MeshBasicMaterial({
-    color: 0xffffff,
+    color: color,
     wireframe: true,
     side: THREE.DoubleSide,
   });

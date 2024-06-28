@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
-import audio01 from '/assets/audio/cartier.mp3';
+// import audio01 from '/assets/audio/cartier.mp3';
+import audio01 from '/assets/audio/dior02.mp3';
 // import audio01 from '/assets/audio/hennessy_court.ogg';
 // import audio01 from '/assets/audio/ufl_ambient.mp3';
 
@@ -10,7 +11,8 @@ function BackgroundAudio() {
   const audio = useMemo(() => new Audio(audio01), []);
 
   const handleAudio = () => {
-    setIsAudioOn(!isAudioOn);
+    console.log('clicked');
+    setIsAudioOn((s) => !s);
     if (isAudioOn) {
       audio.pause();
     } else {
@@ -41,8 +43,21 @@ function BackgroundAudio() {
     };
   }, []);
 
+  // useEffect(() => {
+  //   const handleClick = () => {
+  //     audio.play();
+  //     setIsAudioOn(true);
+  //   };
+
+  //   document.addEventListener('click', handleClick);
+
+  //   return () => {
+  //     document.removeEventListener('click', handleClick);
+  //   };
+  // }, []);
+
   return (
-    <div className="absolute bottom-0 right-0 select-none">
+    <div className="fixed bottom-0 right-0 select-none">
       <button className="relative p-8 pr-12 text-white" onClick={handleAudio}>
         <div className="relative">
           <div
