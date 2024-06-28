@@ -23,5 +23,4 @@ dist-ssr
 *.sln
 *.sw?
 
-public/assets/models/*
-public/assets/models_/*
+public/assets/models
