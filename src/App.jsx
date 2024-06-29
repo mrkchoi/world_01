@@ -1,9 +1,10 @@
 import { Canvas } from '@react-three/fiber';
 import './App.css';
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import Experience from './components/Experience';
 import BackgroundAudio from './components/BackgroundAudio';
 import * as THREE from 'three';
+import Lenis from 'lenis';
 
 // import audio01 from '/assets/audio/cartier.mp3';
 // import audio01 from '/assets/audio/hennessy_court.ogg';
@@ -21,8 +22,11 @@ import { BlendFunction } from 'postprocessing';
 import { useControls } from 'leva';
 import Header from './components/Header';
 import { Loader, ScrollControls } from '@react-three/drei';
+import Cursor from './components/Cursor';
+import Title from './components/Title';
 
 function App() {
+  const lenis = useRef(null);
   const { toneMappingExposure, toneMappingType } = useControls(
     'Tone Mapping',
     {
@@ -48,8 +52,27 @@ function App() {
     }
   );
 
+  useEffect(() => {
+    lenis.current = new Lenis({
+      // lerp: 0.075,
+      // duration: 2,
+      // wheelMultiplier: 0.5,
+    });
+
+    function raf(time) {
+      lenis.current.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+
+    return () => {
+      lenis.current.destroy();
+    };
+  }, []);
+
   return (
-    <div className="h-[2000vh] w-full">
+    <div className="main h-[2000vh] w-full">
       <div className="fixed left-0 top-0 h-screen w-full">
         <Canvas
           shadows
@@ -80,6 +103,8 @@ function App() {
       <Header />
       {/* <Instructions /> */}
       <BackgroundAudio />
+      <Cursor />
+      {/* <Title /> */}
     </div>
   );
 }

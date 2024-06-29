@@ -15,6 +15,7 @@ import { Fog } from 'three';
 // import { loadCurveFromJSON } from '../utils/curveTools/loadCurveFromJSON';
 
 import nightSky from '/assets/hdri/moonless_golf_4k.exr';
+import sky from '/assets/images/cubemap/gradient/gradient.png';
 import { useControls } from 'leva';
 import Dust from './Dust';
 // import {
@@ -34,6 +35,7 @@ import {
   Pixelation,
 } from '@react-three/postprocessing';
 import { useFrame, useThree } from '@react-three/fiber';
+import SkySphere from './SkySphere';
 
 function Experience() {
   return (
@@ -63,24 +65,43 @@ function Experience() {
         near={0.1}
         far={300}
       /> */}
-      <axesHelper args={[50]} />
+      {/* <axesHelper args={[50]} /> */}
       {/* <gridHelper args={[1000, 1000, 'white', 'gray']} /> */}
       <Scene />
       {/* <Dust /> */}
-      {/* <Environment files={nightSky} background={true} /> */}
+      {/* <Environment
+        files={[
+          '/assets/images/cubemap/gradient/gradient_cube.png',
+          '/assets/images/cubemap/gradient/gradient_cube.png',
+          '/assets/images/cubemap/gradient/gradient_cube.png',
+          '/assets/images/cubemap/gradient/gradient_cube.png',
+          '/assets/images/cubemap/gradient/gradient_cube.png',
+          '/assets/images/cubemap/gradient/gradient_cube.png',
+        ]}
+        background
+      /> */}
       {/* <Environment preset="city" /> */}
+      {/* <Environment
+        //preset='studio'
+        background
+        files={[
+          '/assets/images/cubemap/galaxy/right.png',
+          '/assets/images/cubemap/galaxy/left.png',
+          '/assets/images/cubemap/galaxy/top.png',
+          '/assets/images/cubemap/galaxy/bot.png',
+          '/assets/images/cubemap/galaxy/front.png',
+          '/assets/images/cubemap/galaxy/back.png',
+        ]}
+      /> */}
+      {/* <SkySphere /> */}
       <Sky
         sunPosition={[-6.9, 34.4, -30.5]}
         distance={500}
         turbidity={0}
         rayleigh={0.5}
-
-        // azimuth={0.55}
-        // turbidity={0}
-        // rayleigh={0.9}
       />
       {/* <color attach="background" args={['#000']} /> */}
-      {/* <fog attach="fog" args={['#eeeeee', 50, 150]} /> */}
+      {/* <fog attach="fog" args={['#000', -50, 100]} /> */}
     </>
   );
 }
