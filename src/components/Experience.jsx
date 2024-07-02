@@ -16,7 +16,7 @@ import { Fog } from 'three';
 
 import nightSky from '/assets/hdri/moonless_golf_4k.exr';
 import sky from '/assets/images/cubemap/gradient/gradient.png';
-import { useControls } from 'leva';
+import { Leva, useControls } from 'leva';
 import Dust from './Dust';
 // import {
 //   Bloom,
@@ -71,12 +71,12 @@ function Experience() {
       {/* <Dust /> */}
       {/* <Environment
         files={[
-          '/assets/images/cubemap/gradient/gradient_cube.png',
-          '/assets/images/cubemap/gradient/gradient_cube.png',
-          '/assets/images/cubemap/gradient/gradient_cube.png',
-          '/assets/images/cubemap/gradient/gradient_cube.png',
-          '/assets/images/cubemap/gradient/gradient_cube.png',
-          '/assets/images/cubemap/gradient/gradient_cube.png',
+          '/assets/images/cubemap/gradient/gradient04.png',
+          '/assets/images/cubemap/gradient/gradient04.png',
+          '/assets/images/cubemap/gradient/gradient04.png',
+          '/assets/images/cubemap/gradient/gradient04.png',
+          '/assets/images/cubemap/gradient/gradient04.png',
+          '/assets/images/cubemap/gradient/gradient04.png',
         ]}
         background
       /> */}
@@ -85,12 +85,12 @@ function Experience() {
         //preset='studio'
         background
         files={[
-          '/assets/images/cubemap/galaxy/right.png',
-          '/assets/images/cubemap/galaxy/left.png',
-          '/assets/images/cubemap/galaxy/top.png',
-          '/assets/images/cubemap/galaxy/bot.png',
-          '/assets/images/cubemap/galaxy/front.png',
-          '/assets/images/cubemap/galaxy/back.png',
+          '/assets/images/cubemap/sunset/right.png',
+          '/assets/images/cubemap/sunset/left.png',
+          '/assets/images/cubemap/sunset/top.png',
+          '/assets/images/cubemap/sunset/bot.png',
+          '/assets/images/cubemap/sunset/front.png',
+          '/assets/images/cubemap/sunset/back.png',
         ]}
       /> */}
       {/* <SkySphere /> */}

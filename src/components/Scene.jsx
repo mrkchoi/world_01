@@ -9,6 +9,7 @@ import {
   PerspectiveCamera,
   Stats,
   useGLTF,
+  useScroll,
 } from '@react-three/drei';
 // import { MeshReflectorMaterial } from './MeshReflectorMaterial';
 import { OrbitControls } from '../util/OrbitControlsCustom';
@@ -45,8 +46,11 @@ import Clouds from './Clouds';
 import WaterSurfaceSimple from './water/WaterSurfaceSimple';
 import { Perf } from 'r3f-perf';
 import FluidSim from './water/FluidSim';
-import FluidFX from './water/FluidFx';
+// import FluidFX from './water/FluidFx';
 import WaterTest from './water/WaterTest';
+import titleImage from '/assets/images/title/KENNY CHOI.png';
+import TitleTest from './TitleTest';
+import { useStore } from '../App';
 
 // extend({ MeshReflectorMaterial });
 
@@ -163,14 +167,18 @@ const LOOK_AT_POSITIONS = {
   },
 };
 
-export const useStore = create((set) => ({
-  animationsMap: new Map(),
-  addAnimation: (key, value) =>
-    set((state) => ({ animationsMap: state.animationsMap.set(key, value) })),
-  mixer: new THREE.AnimationMixer(),
-  orbitControls: null,
-  setOrbitControls: (value) => set(() => ({ orbitControls: value })),
-}));
+// export const useStore = create((set) => ({
+//   animationsMap: new Map(),
+//   addAnimation: (key, value) =>
+//     set((state) => ({ animationsMap: state.animationsMap.set(key, value) })),
+//   mixer: new THREE.AnimationMixer(),
+//   orbitControls: null,
+//   setOrbitControls: (value) => set(() => ({ orbitControls: value })),
+//   scrollProgress: 0,
+//   setScrollProgress: (value) => set(() => ({ scrollProgress: value })),
+//   activeProject: null,
+//   setActiveProject: (value) => set(() => ({ activeProject: value })),
+// }));
 
 function Model(props) {
   const [video] = useState(() => {
@@ -183,6 +191,10 @@ function Model(props) {
     video.play();
     return video;
   });
+  // use zustand store to set scroll progress
+  const setScrollProgress = useStore((state) => state.setScrollProgress);
+  const activeProject = useStore((state) => state.activeProject);
+  const setActiveProject = useStore((state) => state.setActiveProject);
 
   const { nodes: characterNodes, animations: characterAnimations } = useGLTF(
     '/assets/models/crypto03.glb'
@@ -191,6 +203,7 @@ function Model(props) {
   const { scene, camera, gl } = useThree();
   const cameraGroup = useRef(null);
   const character = useRef(null);
+  const activeProjectRef = useRef(null);
 
   const { nodes, materials } = useGLTF(MODEL_URL);
 
@@ -216,6 +229,15 @@ function Model(props) {
   //   z: 44.755,
   // };
 
+  // const savedScrollY = useRef(null);
+
+  // useEffect(() => {
+  //   activeProjectRef.current = activeProject;
+  //   if (activeProject) {
+  //     savedScrollY.current = window.scrollY;
+  //   }
+  // }, [activeProject]);
+
   useEffect(() => {
     const loadCameraPositionData = async () => {
       const JSONPath = '/assets/models/cameraPosition.json';
@@ -239,12 +261,91 @@ function Model(props) {
 
   useEffect(() => {
     const handleScroll = (e) => {
+      // if (activeProjectRef.current) {
+      //   return;
+      // } else if (savedScrollY.current) {
+      //   window.scrollTo({ top: savedScrollY.current, behavior: 'instant' });
+      //   savedScrollY.current = null;
+      // }
       scrollProgress.current =
         window.scrollY / (document.body.scrollHeight - window.innerHeight);
-      console.log(scrollProgress.current);
+
+      const scrollProgressPixels = window.scrollY;
+      // console.log(scrollProgress.current, scrollProgressPixels);
+      // setActiveProject(null);
+      setScrollProgress(scrollProgress.current);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, [setScrollProgress]);
+
+  const scrollTimer = useRef(null);
+
+  useEffect(() => {
+    // write debounce function to handle scroll snapping
+    const debounce = (func, wait, immediate) => {
+      let timeout;
+      return function () {
+        const context = this,
+          args = arguments;
+        const later = function () {
+          timeout = null;
+          if (!immediate) func.apply(context, args);
+        };
+        const callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
+      };
+    };
+
+    const handleScrollSnap = () => {
+      if (scrollTimer.current) {
+        clearTimeout(scrollTimer.current);
+      }
+
+      let scrollPosition = window.scrollY;
+      if (scrollProgress.current >= 0.05 && scrollProgress.current < 0.09) {
+        scrollPosition = 1250;
+      } else if (
+        scrollProgress.current >= 0.09 &&
+        scrollProgress.current < 0.19
+      ) {
+        scrollPosition = 3200;
+      } else if (
+        scrollProgress.current >= 0.19 &&
+        scrollProgress.current < 0.29
+      ) {
+        scrollPosition = 5100;
+      } else if (
+        scrollProgress.current >= 0.29 &&
+        scrollProgress.current < 0.38
+      ) {
+        scrollPosition = 6800;
+      } else if (
+        scrollProgress.current >= 0.38 &&
+        scrollProgress.current < 0.47
+      ) {
+        scrollPosition = 8600;
+      } else if (
+        scrollProgress.current >= 0.51 &&
+        scrollProgress.current < 0.6
+      ) {
+        scrollPosition = 11525;
+      }
+
+      scrollTimer.current = setTimeout(() => {
+        window.scrollTo({ top: scrollPosition, behavior: 'smooth' });
+      }, 5);
+    };
+
+    const debouncedScrollSnap = debounce(handleScrollSnap, 50);
+
+    window.addEventListener('scroll', debouncedScrollSnap);
+
+    return () => {
+      window.removeEventListener('scroll', debouncedScrollSnap);
+    };
   }, []);
 
   const rotationTarget = useRef({ x: 0, y: 0, z: 0 });
@@ -278,19 +379,19 @@ function Model(props) {
   //   },
   //   { collapsed: true }
   // );
-  // const canvas01 = useRef(null);
-  // const canvas02 = useRef(null);
-  // const canvas03 = useRef(null);
-  // const canvas04 = useRef(null);
-  // const canvas05 = useRef(null);
-  // const canvas06 = useRef(null);
-  // const canvas07 = useRef(null);
-  // const mouse = useRef({
-  //   world: new THREE.Vector2(),
-  //   uv: new THREE.Vector2(),
-  //   isInit: false,
-  // });
-  // const raycaster = new THREE.Raycaster();
+  const canvas01 = useRef(null);
+  const canvas02 = useRef(null);
+  const canvas03 = useRef(null);
+  const canvas04 = useRef(null);
+  const canvas05 = useRef(null);
+  const canvas06 = useRef(null);
+  const canvas07 = useRef(null);
+  const mouse = useRef({
+    world: new THREE.Vector2(),
+    uv: new THREE.Vector2(),
+    isInit: false,
+  });
+  const raycaster = new THREE.Raycaster();
   // const fluid = useRef(
   //   new Fluid(gl, {
   //     curlStrength: 0,
@@ -334,24 +435,25 @@ function Model(props) {
 
   //     // console.log('intersects: ', intersects);
   //     if (intersects.length > 0) {
+  //       console.log(intersects[0]);
   //       const { x, y } = intersects[0].uv;
 
-  //       const deltaX = x - mouse.current.uv.x;
-  //       const deltaY = y - mouse.current.uv.y;
+  //       // const deltaX = x - mouse.current.uv.x;
+  //       // const deltaY = y - mouse.current.uv.y;
 
-  //       mouse.current.uv.copy(intersects[0].uv);
+  //       // mouse.current.uv.copy(intersects[0].uv);
 
-  //       if (Math.abs(deltaX) || Math.abs(deltaY)) {
-  //         // console.log(x, y, deltaX, deltaY);
-  //         if (fluid.current) {
-  //           fluid.current.splats.push({
-  //             x: x,
-  //             y: y,
-  //             dx: deltaX * 5000,
-  //             dy: deltaY * 5000,
-  //           });
-  //         }
-  //       }
+  //       // if (Math.abs(deltaX) || Math.abs(deltaY)) {
+  //       //   // console.log(x, y, deltaX, deltaY);
+  //       //   if (fluid.current) {
+  //       //     fluid.current.splats.push({
+  //       //       x: x,
+  //       //       y: y,
+  //       //       dx: deltaX * 5000,
+  //       //       dy: deltaY * 5000,
+  //       //     });
+  //       //   }
+  //       // }
   //     }
 
   //     mouse.current.world.copy(event);
@@ -363,6 +465,14 @@ function Model(props) {
   //     window.removeEventListener('mousemove', handleMouseMove);
   //   };
   // }, []);
+
+  const handleCanvasClick = (canvasId) => {
+    if (!activeProject) {
+      setActiveProject(canvasId);
+    } else {
+      setActiveProject(null);
+    }
+  };
 
   const world = useRef(null);
 
@@ -477,10 +587,14 @@ function Model(props) {
       // points are relative to curve global position so we need to add the camera position
       point.add(curvePosition);
 
+      const xPos = point.x - rotationTarget.current.y + (activeProject ? 1 : 0);
+      const yPos = point.y + rotationTarget.current.x + (activeProject ? 1 : 0);
+      const zPos = point.z + (activeProject ? 2 : 0);
+
       gsap.to(camera.position, {
-        x: point.x - rotationTarget.current.y,
-        y: point.y + rotationTarget.current.x,
-        z: point.z,
+        x: xPos,
+        y: yPos,
+        z: zPos,
         duration: 0.75,
       });
 
@@ -489,7 +603,11 @@ function Model(props) {
 
       const target = camera.clone();
       target.lookAt(
-        new THREE.Vector3(lookAtPosition.x, lookAtPosition.y, lookAtPosition.z)
+        new THREE.Vector3(
+          lookAtPosition.x + (activeProject ? 2 : 0),
+          lookAtPosition.y,
+          lookAtPosition.z
+        )
       );
 
       camera.quaternion.slerp(target.quaternion, 0.025);
@@ -516,6 +634,12 @@ function Model(props) {
   //   console.log('waterExterior: ', waterExterior.current);
   // }, []);
 
+  const titleTexture = useMemo(() => {
+    const texture = new THREE.TextureLoader().load(titleImage);
+    texture.flipY = false;
+    return texture;
+  }, []);
+
   return (
     <>
       {/* <Stats /> */}
@@ -525,8 +649,9 @@ function Model(props) {
           LEFT: THREE.MOUSE.ROTATE,
           RIGHT: THREE.MOUSE.ROTATE,
           MIDDLE: THREE.MOUSE.ROTATE,
-        }}
-      /> */}
+          }}
+          /> */}
+      <TitleTest />
       <Clouds />
       {/* <WaterTest /> */}
       <WaterSurfaceSimple
@@ -786,10 +911,12 @@ function Model(props) {
           position={[16.643, 0, -35.363]}
         />
         <mesh
+          ref={canvas01}
           geometry={nodes.canvas001.geometry}
           material={materials.Canvas01}
           position={[12.013, 3.027, -53.04]}
           rotation={[0, -0.422, 0]}
+          onClick={() => handleCanvasClick(1)}
         />
         <mesh
           geometry={nodes.canvasBack002.geometry}
@@ -798,10 +925,12 @@ function Model(props) {
           rotation={[0, 0.42, 0]}
         />
         <mesh
+          ref={canvas02}
           geometry={nodes.canvas002.geometry}
           material={materials.Canvas02}
           position={[-0.787, 3.028, -72.638]}
           rotation={[0, 0.42, 0]}
+          onClick={() => handleCanvasClick(2)}
         />
         <mesh
           geometry={nodes.canvasBack003.geometry}
@@ -810,10 +939,12 @@ function Model(props) {
           rotation={[0, -0.454, 0]}
         />
         <mesh
+          ref={canvas03}
           geometry={nodes.canvas003.geometry}
           material={materials.Canvas03}
           position={[10.63, 3.03, -92.398]}
           rotation={[0, -0.454, 0]}
+          onClick={() => handleCanvasClick(3)}
         />
         <mesh
           geometry={nodes.canvasBack004.geometry}
@@ -822,10 +953,12 @@ function Model(props) {
           rotation={[0, 0.556, 0]}
         />
         <mesh
+          ref={canvas04}
           geometry={nodes.canvas004.geometry}
           material={materials.Canvas04}
           position={[-10.216, 3.038, -110.056]}
           rotation={[0, 0.556, 0]}
+          onClick={() => handleCanvasClick(4)}
         />
         <mesh
           geometry={nodes.canvasBack005.geometry}
@@ -834,10 +967,12 @@ function Model(props) {
           rotation={[-Math.PI, 0.793, -Math.PI]}
         />
         <mesh
+          ref={canvas05}
           geometry={nodes.canvas005.geometry}
           material={materials.Canvas05}
           position={[-30.974, 3.021, -89.757]}
           rotation={[-Math.PI, 0.793, -Math.PI]}
+          onClick={() => handleCanvasClick(5)}
         />
         <mesh
           geometry={nodes.canvasBack006.geometry}
@@ -846,10 +981,12 @@ function Model(props) {
           rotation={[0, 1.476, 0]}
         />
         <mesh
+          ref={canvas06}
           geometry={nodes.canvas006.geometry}
           material={materials.Canvas06}
           position={[-59.154, 3.028, -98.602]}
           rotation={[0, 1.476, 0]}
+          onClick={() => handleCanvasClick(6)}
         />
         <mesh
           geometry={nodes.canvasBack007.geometry}
@@ -858,10 +995,12 @@ function Model(props) {
           rotation={[0, 0.714, 0]}
         />
         <mesh
+          ref={canvas07}
           geometry={nodes.canvas007.geometry}
           material={materials.Canvas07}
           position={[-64.587, 3.039, -118.668]}
           rotation={[0, 0.714, 0]}
+          onClick={() => handleCanvasClick(7)}
         />
         <mesh
           geometry={nodes.sphere002.geometry}

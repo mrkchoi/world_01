@@ -24,6 +24,23 @@ import Header from './components/Header';
 import { Loader, ScrollControls } from '@react-three/drei';
 import Cursor from './components/Cursor';
 import Title from './components/Title';
+import ProjectTitle from './components/projects/ProjectTitle';
+import ProjectTitles from './components/projects/ProjectTitles';
+import Projects from './components/projects/Projects';
+import { create } from 'zustand';
+
+export const useStore = create((set) => ({
+  animationsMap: new Map(),
+  addAnimation: (key, value) =>
+    set((state) => ({ animationsMap: state.animationsMap.set(key, value) })),
+  mixer: new THREE.AnimationMixer(),
+  orbitControls: null,
+  setOrbitControls: (value) => set(() => ({ orbitControls: value })),
+  scrollProgress: 0,
+  setScrollProgress: (value) => set(() => ({ scrollProgress: value })),
+  activeProject: null,
+  setActiveProject: (value) => set(() => ({ activeProject: value })),
+}));
 
 function App() {
   const lenis = useRef(null);
@@ -71,6 +88,14 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'smooth',
+    });
+  }, []);
+
   return (
     <div className="main h-[2000vh] w-full">
       <div className="fixed left-0 top-0 h-screen w-full">
@@ -103,8 +128,9 @@ function App() {
       <Header />
       {/* <Instructions /> */}
       <BackgroundAudio />
-      <Cursor />
       {/* <Title /> */}
+      <Cursor />
+      <Projects />
     </div>
   );
 }
