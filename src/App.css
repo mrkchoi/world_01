@@ -7,14 +7,38 @@ body::-webkit-scrollbar {
 }
 
 .circle {
-  --circle-size: 40px;
+  --circle-size: 16px;
   position: fixed;
   height: var(--circle-size);
   width: var(--circle-size);
   border: 1px solid white;
   border-radius: 100%;
+  background-color: white;
   top: calc(var(--circle-size) / 2 * -1);
   left: calc(var(--circle-size) / 2 * -1);
   pointer-events: none;
   will-change: transform;
+  transition:
+    width 0.3s ease-in-out,
+    height 0.3s ease-in-out,
+    top 0.3s ease-in-out,
+    left 0.3s ease-in-out,
+    background-color 0.3s ease-in-out;
+}
+
+.circle.active {
+  --circle-size-active: 60px;
+  background-color: white;
+  height: var(--circle-size-active);
+  width: var(--circle-size-active);
+  top: calc(var(--circle-size-active) / 2 * -1);
+  left: calc(var(--circle-size-active) / 2 * -1);
+}
+
+.circle .circleText {
+  color: transparent;
+  transition: color 0.3s ease-in-out;
+}
+.circle.active .circleText {
+  color: black;
 }

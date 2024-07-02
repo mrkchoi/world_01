@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useStore } from '../App';
 
 const SPEED = 0.17;
 
@@ -13,6 +14,9 @@ let currentAngle = 0; // Track current angle value
 
 function Cursor() {
   const cursor = useRef(null);
+  const activeCursor = useStore((state) => state.activeCursor);
+  const activeProject = useStore((state) => state.activeProject);
+  const [text, setText] = useState('+');
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -26,6 +30,32 @@ function Cursor() {
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
+
+  useEffect(() => {
+    if (activeCursor) {
+      cursor.current.classList.add('active');
+    } else {
+      cursor.current.classList.remove('active');
+    }
+  }, [activeCursor]);
+
+  useEffect(() => {
+    if (activeProject) {
+      setText(
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          fill="currentColor"
+          viewBox="0 0 16 16"
+        >
+          <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
+        </svg>
+      );
+    } else {
+      setText('+');
+    }
+  }, [activeProject]);
 
   useEffect(() => {
     const tick = () => {
@@ -53,7 +83,8 @@ function Cursor() {
       // 4. Smoothly update the current scale
       currentScale += (scaleValue - currentScale) * SPEED;
       // 5. Create a transformation string for scaling
-      const scaleTransform = `scale(${1 + currentScale}, ${1 - currentScale})`;
+      const scaleTransform = `scale(${1}, ${1})`;
+      // const scaleTransform = `scale(${1 + currentScale}, ${1 - currentScale})`;
 
       // ROTATE
       // 1. Calculate the angle using the atan2 function
@@ -63,8 +94,8 @@ function Cursor() {
         currentAngle = angle;
       }
       // 3. Create a transformation string for rotation
-      const rotateTransform = `rotate(${currentAngle}deg)`;
-
+      // const rotateTransform = `rotate(${currentAngle}deg)`;
+      const rotateTransform = `rotate(${0}deg)`;
       // Apply all transformations to the circle element in a specific order: translate -> rotate -> scale
       if (cursor.current) {
         cursor.current.style.transform = `${translateTransform} ${rotateTransform} ${scaleTransform}`;
@@ -81,7 +112,14 @@ function Cursor() {
     };
   }, []);
 
-  return <div ref={cursor} className="circle"></div>;
+  return (
+    <div
+      ref={cursor}
+      className="circle active flex items-center justify-center text-white"
+    >
+      <span className="circleText">{text}</span>
+    </div>
+  );
 }
 
 export default Cursor;

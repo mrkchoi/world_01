@@ -40,6 +40,8 @@ export const useStore = create((set) => ({
   setScrollProgress: (value) => set(() => ({ scrollProgress: value })),
   activeProject: null,
   setActiveProject: (value) => set(() => ({ activeProject: value })),
+  activeCursor: false,
+  setActiveCursor: (value) => set(() => ({ activeCursor: value })),
 }));
 
 function App() {
@@ -129,8 +131,8 @@ function App() {
       {/* <Instructions /> */}
       <BackgroundAudio />
       {/* <Title /> */}
-      <Cursor />
       <Projects />
+      <Cursor />
     </div>
   );
 }

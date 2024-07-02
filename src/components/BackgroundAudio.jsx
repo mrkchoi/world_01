@@ -11,7 +11,7 @@ function BackgroundAudio() {
   const audio = useMemo(() => new Audio(audio01), []);
 
   const handleAudio = () => {
-    console.log('clicked');
+    // console.log('clicked');
     setIsAudioOn((s) => !s);
     if (isAudioOn) {
       audio.pause();

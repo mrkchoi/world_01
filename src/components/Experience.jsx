@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import Scene from './Scene';
 import {
+  CameraShake,
   Cloud,
   Clouds,
   Environment,
@@ -31,6 +32,7 @@ import {
   Bloom,
   EffectComposer,
   Glitch,
+  GodRays,
   Noise,
   Pixelation,
 } from '@react-three/postprocessing';

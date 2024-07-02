@@ -17,6 +17,7 @@ function ProjectTitle({
   const scrollProgress = useStore((state) => state.scrollProgress);
   const setActiveProject = useStore((state) => state.setActiveProject);
   const activeProject = useStore((state) => state.activeProject);
+  const setActiveCursor = useStore((state) => state.setActiveCursor);
 
   useEffect(() => {
     // console.log('activeProject: ', activeProject, 'projectId: ', projectId);
@@ -58,12 +59,27 @@ function ProjectTitle({
     setActiveProject(projectId);
   };
 
+  const handleMouseEnter = () => {
+    setActiveCursor(true);
+    // set cursor to pointer
+    // document.body.style.cursor = 'pointer';
+  };
+
+  const handleMouseLeave = () => {
+    setActiveCursor(false);
+    // reset cursor
+    // document.body.style.cursor = 'auto';
+  };
+
   return (
     <>
       <button
         ref={titleRef}
         className="fixed bottom-0 left-[50%] mb-12 flex translate-x-[-50%] flex-col items-center justify-center rounded-lg p-4 text-white opacity-0"
         onClick={handleClick}
+        onMouseEnter={handleMouseEnter}
+        onMouseMove={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         <span className="mb-2 text-center text-6xl font-bold uppercase">
           {title}
