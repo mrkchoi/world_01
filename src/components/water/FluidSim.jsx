@@ -8,29 +8,40 @@ import videoSource from '/assets/video/zajno_showreel.mp4';
 import { WaterContext } from './WaterContext';
 import { useContext } from 'react';
 
+const FLUID = {
+  iterate: { value: 3, min: 1, max: 10 },
+  density: { value: 0.97, min: 0, max: 1 },
+  velocity: { value: 0.94, min: 0, max: 1 },
+  pressure: { value: 0.7, min: 0, max: 1 },
+  curl: { value: 50, min: 0, max: 50 },
+  // radius: { value: 0.0001, min: 0.0001, max: 0.1 },
+  // radius: { value: 0.02, min: 0.01, max: 0.1 },
+  deltaMultiplier: { value: 1, min: 1, max: 10000 },
+};
+
 function FluidSim({ radius }) {
-  const {
-    iterate,
-    density,
-    velocity,
-    pressure,
-    curl,
-    // radius,
-    deltaMultiplier,
-  } = useControls(
-    'Fluid',
-    {
-      iterate: { value: 3, min: 1, max: 10 },
-      density: { value: 0.97, min: 0, max: 1 },
-      velocity: { value: 0.94, min: 0, max: 1 },
-      pressure: { value: 0.7, min: 0, max: 1 },
-      curl: { value: 50, min: 0, max: 50 },
-      // radius: { value: 0.0001, min: 0.0001, max: 0.1 },
-      // radius: { value: 0.02, min: 0.01, max: 0.1 },
-      deltaMultiplier: { value: 1, min: 1, max: 10000 },
-    },
-    { collapsed: false }
-  );
+  // const {
+  //   iterate,
+  //   density,
+  //   velocity,
+  //   pressure,
+  //   curl,
+  //   // radius,
+  //   deltaMultiplier,
+  // } = useControls(
+  //   'Fluid',
+  //   {
+  //     iterate: { value: 3, min: 1, max: 10 },
+  //     density: { value: 0.97, min: 0, max: 1 },
+  //     velocity: { value: 0.94, min: 0, max: 1 },
+  //     pressure: { value: 0.7, min: 0, max: 1 },
+  //     curl: { value: 50, min: 0, max: 50 },
+  //     // radius: { value: 0.0001, min: 0.0001, max: 0.1 },
+  //     // radius: { value: 0.02, min: 0.01, max: 0.1 },
+  //     deltaMultiplier: { value: 1, min: 1, max: 10000 },
+  //   },
+  //   { collapsed: false }
+  // );
   const { ref: mesh, refPointer } = useContext(WaterContext);
   // const mesh = useRef(null);
   const { gl, camera, raycaster, scene } = useThree();
@@ -86,8 +97,8 @@ function FluidSim({ radius }) {
               // y: refPointer.current.y,
               x: x,
               y: y,
-              dx: deltaX * deltaMultiplier,
-              dy: deltaY * deltaMultiplier,
+              dx: deltaX * FLUID.deltaMultiplier.value,
+              dy: deltaY * FLUID.deltaMultiplier.value,
             });
           }
         }
@@ -108,11 +119,11 @@ function FluidSim({ radius }) {
         // mesh.current.material.uniforms.uFluid.value = fluid.uniform.value;
         mesh.current.material.uniforms.u_fx.value = fluid.uniform.value;
       }
-      fluid.iterate = iterate;
-      fluid.densityDissipation = density;
-      fluid.velocityDissipation = velocity;
-      fluid.pressureDissipation = pressure;
-      fluid.curlStrength = curl;
+      fluid.iterate = FLUID.iterate.value;
+      fluid.densityDissipation = FLUID.density.value;
+      fluid.velocityDissipation = FLUID.velocity.value;
+      fluid.pressureDissipation = FLUID.pressure.value;
+      fluid.curlStrength = FLUID.curl.value;
       fluid.radius = radius;
       fluid.update();
     }

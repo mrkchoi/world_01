@@ -2,10 +2,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 
 // import audio01 from '/assets/audio/cartier.mp3';
 import audio01 from '/assets/audio/dior02.mp3';
+import Equalizer from './Equalizer';
 // import audio01 from '/assets/audio/hennessy_court.ogg';
 // import audio01 from '/assets/audio/ufl_ambient.mp3';
 
 function BackgroundAudio() {
+  const [initialAudio, setInitialAudio] = useState(false);
   const [isAudioOn, setIsAudioOn] = useState(false);
   // const [play, { stop }] = useSound(audio01, { loop: true });
   const audio = useMemo(() => new Audio(audio01), []);
@@ -43,33 +45,31 @@ function BackgroundAudio() {
     };
   }, []);
 
-  // useEffect(() => {
-  //   const handleClick = () => {
-  //     audio.play();
-  //     setIsAudioOn(true);
-  //   };
+  useEffect(() => {
+    const handleClick = () => {
+      if (initialAudio) return;
+      setInitialAudio(true);
+      setIsAudioOn(true);
+      audio.play();
+    };
 
-  //   document.addEventListener('click', handleClick);
+    document.addEventListener('click', handleClick);
 
-  //   return () => {
-  //     document.removeEventListener('click', handleClick);
-  //   };
-  // }, []);
+    return () => {
+      document.removeEventListener('click', handleClick);
+    };
+  }, []);
 
   return (
-    <div className="fixed bottom-0 right-0 select-none">
-      <button className="relative p-8 pr-12 text-white" onClick={handleAudio}>
-        <div className="relative">
-          <div
-            className={[
-              'absolute left-0 top-[50%] h-[1px] w-full bg-white transition-opacity duration-200 ease-in-out',
-              isAudioOn ? 'opacity-0' : 'opacity-100',
-            ].join(' ')}
-          ></div>
-          <span className="text-xs uppercase text-gray-300">
-            sound {isAudioOn ? ' on' : ' off'}
-          </span>
-        </div>
+    <div className="select-none">
+      <button
+        className={[
+          'audioButton relative flex items-center justify-center rounded-full p-2 pr-2 text-black shadow-md',
+          isAudioOn ? 'active' : 'bg-black',
+        ].join(' ')}
+        onClick={handleAudio}
+      >
+        <Equalizer isAudioOn={isAudioOn} />
       </button>
     </div>
   );

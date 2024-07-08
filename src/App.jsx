@@ -21,13 +21,18 @@ import {
 import { BlendFunction } from 'postprocessing';
 import { useControls } from 'leva';
 import Header from './components/Header';
-import { Loader, ScrollControls } from '@react-three/drei';
+import { Loader, PerformanceMonitor, ScrollControls } from '@react-three/drei';
 import Cursor from './components/Cursor';
 import Title from './components/Title';
 import ProjectTitle from './components/projects/ProjectTitle';
 import ProjectTitles from './components/projects/ProjectTitles';
 import Projects from './components/projects/Projects';
 import { create } from 'zustand';
+import { toneMappingExposure } from 'three/examples/jsm/nodes/display/ToneMappingNode.js';
+
+// const PERSPECTIVE = 800;
+// const FOV =
+//   (180 * (2 * Math.atan(window.innerHeight / 2 / PERSPECTIVE))) / Math.PI;
 
 export const useStore = create((set) => ({
   animationsMap: new Map(),
@@ -44,32 +49,37 @@ export const useStore = create((set) => ({
   setActiveCursor: (value) => set(() => ({ activeCursor: value })),
 }));
 
+const TONE_MAPPING = {
+  toneMappingType: THREE.ReinhardToneMapping,
+  toneMappingExposure: 1.5,
+};
+
 function App() {
   const lenis = useRef(null);
-  const { toneMappingExposure, toneMappingType } = useControls(
-    'Tone Mapping',
-    {
-      toneMappingExposure: {
-        value: 1.5,
-        min: 0,
-        max: 10,
-      },
-      toneMappingType: {
-        // value: THREE.NoToneMapping,
-        value: THREE.ReinhardToneMapping,
-        options: [
-          THREE.NoToneMapping,
-          THREE.LinearToneMapping,
-          THREE.ReinhardToneMapping,
-          THREE.CineonToneMapping,
-          THREE.ACESFilmicToneMapping,
-        ],
-      },
-    },
-    {
-      collapsed: true,
-    }
-  );
+  // const { toneMappingExposure, toneMappingType } = useControls(
+  //   'Tone Mapping',
+  //   {
+  //     toneMappingExposure: {
+  //       value: 1.5,
+  //       min: 0,
+  //       max: 10,
+  //     },
+  //     toneMappingType: {
+  //       // value: THREE.NoToneMapping,
+  //       value: THREE.ReinhardToneMapping,
+  //       options: [
+  //         THREE.NoToneMapping,
+  //         THREE.LinearToneMapping,
+  //         THREE.ReinhardToneMapping,
+  //         THREE.CineonToneMapping,
+  //         THREE.ACESFilmicToneMapping,
+  //       ],
+  //     },
+  //   },
+  //   {
+  //     collapsed: true,
+  //   }
+  // );
 
   useEffect(() => {
     lenis.current = new Lenis({
@@ -98,6 +108,8 @@ function App() {
     });
   }, []);
 
+  const [dpr, setDpr] = useState(1);
+
   return (
     <div className="main h-[2000vh] w-full">
       <div className="fixed left-0 top-0 h-screen w-full">
@@ -108,10 +120,15 @@ function App() {
           gl={{
             // gammaFactor: 3.2,
             // outputEncoding: THREE.sRGBEncoding,
-            toneMapping: toneMappingType,
-            toneMappingExposure: toneMappingExposure,
+            toneMapping: TONE_MAPPING.toneMappingType,
+            toneMappingExposure: TONE_MAPPING.toneMappingExposure,
           }}
+          dpr={dpr}
         >
+          <PerformanceMonitor
+            onIncline={() => setDpr(2)}
+            onDecline={() => setDpr(1)}
+          />
           {/* <EffectComposer multisampling={0} disableRenderPass>
             <Vignette
               eskil={false}
@@ -129,7 +146,7 @@ function App() {
       </div>
       <Header />
       {/* <Instructions /> */}
-      <BackgroundAudio />
+      {/* <BackgroundAudio /> */}
       {/* <Title /> */}
       <Projects />
       <Cursor />

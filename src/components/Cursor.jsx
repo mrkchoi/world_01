@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useStore } from '../App';
 
-const SPEED = 0.17;
+const SPEED = 0.2;
 
 // Create objects to track mouse position and custom cursor position
 const mouse = { x: 0, y: 0 }; // Track current mouse position
@@ -31,13 +31,13 @@ function Cursor() {
     };
   }, []);
 
-  useEffect(() => {
-    if (activeCursor) {
-      cursor.current.classList.add('active');
-    } else {
-      cursor.current.classList.remove('active');
-    }
-  }, [activeCursor]);
+  // useEffect(() => {
+  //   if (activeCursor) {
+  //     cursor.current.classList.add('active');
+  //   } else {
+  //     cursor.current.classList.remove('active');
+  //   }
+  // }, [activeCursor]);
 
   useEffect(() => {
     if (activeProject) {
@@ -53,7 +53,7 @@ function Cursor() {
         </svg>
       );
     } else {
-      setText('+');
+      setText('View');
     }
   }, [activeProject]);
 
@@ -115,9 +115,9 @@ function Cursor() {
   return (
     <div
       ref={cursor}
-      className="circle active flex items-center justify-center text-white"
+      className="circle flex items-center justify-center text-white"
     >
-      <span className="circleText">{text}</span>
+      <span className="circleText font-extralight">{text}</span>
     </div>
   );
 }

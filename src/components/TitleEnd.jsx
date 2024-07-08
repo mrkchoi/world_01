@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { Fluid } from '@alienkitty/alien.js/three';
 import { v4 as uuidv4 } from 'uuid';
-import titleImage from '/assets/images/title/KENNY CHOI.png';
+import titleImage from '/assets/images/title/LETS WORK TOGETHER.png';
 
 const FLUID = {
   iterate: { value: 3, min: 1, max: 10 },
@@ -16,7 +16,7 @@ const FLUID = {
   deltaMultiplier: { value: 5000, min: 1, max: 10000 },
 };
 
-function TitleTest() {
+function TitleEnd() {
   // const {
   //   iterate,
   //   density,
@@ -55,6 +55,7 @@ function TitleTest() {
   useEffect(() => {
     const fluidInstance = fluid;
 
+    console.log('title end');
     return () => {
       fluidInstance.destroy();
     };
@@ -118,6 +119,20 @@ function TitleTest() {
       fluid.update();
     }
     // mesh.current.material.uniforms.uTime.value += delta;
+    if (mesh.current) {
+      // mesh.current.children.forEach((mesh) => {
+      //   if (mesh) {
+      const cameraPosition = camera.position;
+      const lookAtPosition = new THREE.Vector3(
+        cameraPosition.x,
+        cameraPosition.y + 11,
+        cameraPosition.z
+      );
+      mesh.current.lookAt(lookAtPosition);
+      // mesh.lookAt(camera.position);
+      //   }
+      // });
+    }
   });
 
   const titleTexture = useMemo(() => {
@@ -193,12 +208,12 @@ function TitleTest() {
     <>
       <mesh
         ref={mesh}
-        position={[2, 16, 0]}
+        position={[-118, 15, -182.2]}
         // scale mesh to fit width of screen
         // scale={Math.min(50, window.innerWidth / 18)}
         // scale={[window.innerWidth / 25, window.innerWidth / 25, 1]}
       >
-        <planeGeometry args={[1, 0.33]} />
+        <planeGeometry args={[1, 0.43]} />
         <shaderMaterial
           key={uuidv4()}
           uniforms={uniforms}
@@ -239,4 +254,4 @@ function TitleTest() {
   );
 }
 
-export default TitleTest;
+export default TitleEnd;

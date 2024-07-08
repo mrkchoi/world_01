@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import Scene from './Scene';
 import {
   CameraShake,
@@ -9,6 +9,7 @@ import {
   PerspectiveCamera,
   Sky,
   Stars,
+  Stats,
 } from '@react-three/drei';
 import { GlitchEffect, GlitchMode, BlendFunction } from 'postprocessing';
 import { Perf } from 'r3f-perf';
@@ -39,9 +40,31 @@ import {
 import { useFrame, useThree } from '@react-three/fiber';
 import SkySphere from './SkySphere';
 
+const params = {
+  // fogHorizonColor: 0xe4dcff,
+  fogHorizonColor: 0xf4f3f1,
+  fogDensity: 0.02,
+};
+
 function Experience() {
+  // const fog = useMemo(() => {
+  //   const fog = new THREE.FogExp2(params.fogHorizonColor, params.fogDensity);
+  //   return fog;
+  // }, []);
+  // const { scene } = useThree();
+
+  // useEffect(() => {
+  //   const fogInstance = fog;
+  //   scene.fog = fogInstance;
+
+  //   // return () => {
+  //   //   fogInstance.dispose();
+  //   // };
+  // }, []);
+
   return (
     <>
+      {/* <Stats /> */}
       {/* <OrbitControls /> */}
       {/* <Perf position="top-right" /> */}
       <ambientLight intensity={5} />
@@ -103,7 +126,7 @@ function Experience() {
         rayleigh={0.5}
       />
       {/* <color attach="background" args={['#000']} /> */}
-      {/* <fog attach="fog" args={['#000', -50, 100]} /> */}
+      {/* <fog attach="fog" args={['#FFF', 0, 20]} /> */}
     </>
   );
 }

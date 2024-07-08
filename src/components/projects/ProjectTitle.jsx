@@ -21,6 +21,7 @@ function ProjectTitle({
 
   useEffect(() => {
     // console.log('activeProject: ', activeProject, 'projectId: ', projectId);
+    // console.log('activeProject - ProjectTitle: ', activeProject);
     if (activeProject === projectId) {
       const tl = gsap.timeline();
       tl.to(titleRef.current, {
@@ -87,7 +88,7 @@ function ProjectTitle({
         <span className="text-md mb-2 text-center font-extralight">
           {description}
         </span>
-        <span className="text-center font-medium underline">Discover</span>
+        {/* <span className="text-center font-medium underline">Discover</span> */}
       </button>
     </>
   );

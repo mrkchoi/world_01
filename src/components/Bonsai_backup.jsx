@@ -4,40 +4,30 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { Fluid } from '@alienkitty/alien.js/three';
 import { v4 as uuidv4 } from 'uuid';
-import titleImage from '/assets/images/title/KENNY CHOI.png';
+import bonsaiImage from '/assets/images/bonsai/bonsai.png';
 
-const FLUID = {
-  iterate: { value: 3, min: 1, max: 10 },
-  density: { value: 0.95, min: 0, max: 1 },
-  velocity: { value: 0.98, min: 0, max: 1 },
-  pressure: { value: 0.8, min: 0, max: 1 },
-  curl: { value: 10, min: 0, max: 50 },
-  radius: { value: 0.1, min: 0.01, max: 0.5 },
-  deltaMultiplier: { value: 5000, min: 1, max: 10000 },
-};
-
-function TitleTest() {
-  // const {
-  //   iterate,
-  //   density,
-  //   velocity,
-  //   pressure,
-  //   curl,
-  //   radius,
-  //   deltaMultiplier,
-  // } = useControls(
-  //   'Fluid',
-  //   {
-  //     iterate: { value: 3, min: 1, max: 10 },
-  //     density: { value: 0.95, min: 0, max: 1 },
-  //     velocity: { value: 0.98, min: 0, max: 1 },
-  //     pressure: { value: 0.8, min: 0, max: 1 },
-  //     curl: { value: 10, min: 0, max: 50 },
-  //     radius: { value: 0.1, min: 0.01, max: 0.5 },
-  //     deltaMultiplier: { value: 5000, min: 1, max: 10000 },
-  //   },
-  //   { collapsed: true }
-  // );
+function Bonsai() {
+  const {
+    iterate,
+    density,
+    velocity,
+    pressure,
+    curl,
+    radius,
+    deltaMultiplier,
+  } = useControls(
+    'Fluid',
+    {
+      iterate: { value: 3, min: 1, max: 10 },
+      density: { value: 0.95, min: 0, max: 1 },
+      velocity: { value: 0.98, min: 0, max: 1 },
+      pressure: { value: 0.8, min: 0, max: 1 },
+      curl: { value: 10, min: 0, max: 50 },
+      radius: { value: 0.1, min: 0.01, max: 0.5 },
+      deltaMultiplier: { value: 5000, min: 1, max: 10000 },
+    },
+    { collapsed: true }
+  );
 
   const mesh = useRef(null);
   const { gl, camera, raycaster, scene } = useThree();
@@ -88,8 +78,8 @@ function TitleTest() {
             fluid.splats.push({
               x: x,
               y: y,
-              dx: deltaX * FLUID.deltaMultiplier.value,
-              dy: deltaY * FLUID.deltaMultiplier.value,
+              dx: deltaX * deltaMultiplier,
+              dy: deltaY * deltaMultiplier,
             });
           }
         }
@@ -109,19 +99,28 @@ function TitleTest() {
       if (fluid.uniform) {
         mesh.current.material.uniforms.uFluid.value = fluid.uniform.value;
       }
-      fluid.iterate = FLUID.iterate.value;
-      fluid.densityDissipation = FLUID.density.value;
-      fluid.velocityDissipation = FLUID.velocity.value;
-      fluid.pressureDissipation = FLUID.pressure.value;
-      fluid.curlStrength = FLUID.curl.value;
-      fluid.radius = FLUID.radius.value;
+      fluid.iterate = iterate;
+      fluid.densityDissipation = density;
+      fluid.velocityDissipation = velocity;
+      fluid.pressureDissipation = pressure;
+      fluid.curlStrength = curl;
+      // fluid.radius = 0.025;
+      // fluid.radius = radius;
       fluid.update();
     }
     // mesh.current.material.uniforms.uTime.value += delta;
+    if (mesh.current) {
+      // mesh.current.children.forEach((mesh) => {
+      //   if (mesh) {
+      mesh.current.lookAt(camera.position);
+      // mesh.lookAt(camera.position);
+      //   }
+      // });
+    }
   });
 
   const titleTexture = useMemo(() => {
-    const texture = new THREE.TextureLoader().load(titleImage);
+    const texture = new THREE.TextureLoader().load(bonsaiImage);
     return texture;
   }, []);
 
@@ -132,73 +131,15 @@ function TitleTest() {
     };
   }, []);
 
-  useEffect(() => {
-    mesh.current.scale.set(window.innerWidth / 25, window.innerWidth / 25, 1);
-  }, []);
-
-  useEffect(() => {
-    const throttle = (func, limit) => {
-      let inThrottle;
-      return function () {
-        const args = arguments;
-        const context = this;
-        if (!inThrottle) {
-          func.apply(context, args);
-          inThrottle = true;
-          setTimeout(() => (inThrottle = false), limit);
-        }
-      };
-    };
-    const handleResize = () => {
-      // scale mesh bounds to not exceed width of screen based on height
-      const windowHeight = window.innerHeight;
-
-      if (windowHeight > 2000) {
-        mesh.current.scale.set(
-          window.innerWidth / 40,
-          window.innerWidth / 40,
-          1
-        );
-      } else if (windowHeight > 1500) {
-        mesh.current.scale.set(
-          window.innerWidth / 35,
-          window.innerWidth / 35,
-          1
-        );
-      } else if (windowHeight > 1200) {
-        mesh.current.scale.set(
-          window.innerWidth / 30,
-          window.innerWidth / 30,
-          1
-        );
-      } else if (windowHeight > 800) {
-        mesh.current.scale.set(
-          window.innerWidth / 25,
-          window.innerWidth / 25,
-          1
-        );
-      }
-    };
-
-    const throttledHandleResize = throttle(handleResize, 100);
-
-    window.addEventListener('resize', throttledHandleResize);
-
-    return () => {
-      window.removeEventListener('resize', throttledHandleResize);
-    };
-  }, []);
-
   return (
     <>
       <mesh
         ref={mesh}
-        position={[2, 16, 0]}
+        position={[-280, 19, -322]}
         // scale mesh to fit width of screen
-        // scale={Math.min(50, window.innerWidth / 18)}
         // scale={[window.innerWidth / 25, window.innerWidth / 25, 1]}
       >
-        <planeGeometry args={[1, 0.33]} />
+        <planeGeometry args={[150, 150]} />
         <shaderMaterial
           key={uuidv4()}
           uniforms={uniforms}
@@ -239,4 +180,4 @@ function TitleTest() {
   );
 }
 
-export default TitleTest;
+export default Bonsai;

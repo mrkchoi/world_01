@@ -49,8 +49,13 @@ import FluidSim from './water/FluidSim';
 // import FluidFX from './water/FluidFx';
 import WaterTest from './water/WaterTest';
 import titleImage from '/assets/images/title/KENNY CHOI.png';
+import bonsaiImage from '/assets/images/bonsai/bonsai tree_.png';
 import TitleTest from './TitleTest';
 import { useStore } from '../App';
+import Bonsai from './Bonsai';
+import useScrollBlock from '../hooks/useScrollBlock';
+import WaterSurfaces from './water/WaterSurfaces';
+import TitleEnd from './TitleEnd';
 
 // extend({ MeshReflectorMaterial });
 
@@ -114,33 +119,34 @@ const LOOK_AT_POSITIONS = {
     x: -5.41359,
     y: 3.56651711467,
     z: -30.5556,
+    scrollProgress: 0.06171620420657648,
   },
   C1: {
     x: 12.0733,
     y: 3.56651711467,
     z: -52.7959,
-    scrollPosition: 3200,
+    // scrollPosition: 3200,
     scrollProgress: 0.1599440195931424,
   },
   C2: {
     x: -0.946431,
     y: 3.56651711467,
     z: -72.4519,
-    scrollPosition: 5100,
+    // scrollPosition: 5100,
     scrollProgress: 0.2549107812265707,
   },
   C3: {
     x: 10.3668,
     y: 3.56651711467,
     z: -92.2975,
-    scrollPosition: 6800,
+    // scrollPosition: 6800,
     scrollProgress: 0.3398810416354276,
   },
   C4: {
     x: -10.1108,
     y: 3.56651711467,
     z: -110.121,
-    scrollPosition: 8600,
+    // scrollPosition: 8600,
     scrollProgress: 0.4298495526565702,
   },
   PLANT: {
@@ -157,21 +163,21 @@ const LOOK_AT_POSITIONS = {
     x: -31.094,
     y: 3.56651711467,
     z: -89.643,
-    scrollPosition: 8600, // needs update
+    // scrollPosition: 8600, // needs update
     scrollProgress: 0.4298495526565702, // needs update
   },
   C6: {
     x: -59.5351,
     y: 3.56651711467,
     z: -98.9969,
-    scrollPosition: 8600, // needs update
+    // scrollPosition: 8600, // needs update
     scrollProgress: 0.4298495526565702, // needs update
   },
   C7: {
     x: -64.5281,
     y: 3.56651711467,
     z: -118.526,
-    scrollPosition: 8600, // needs update
+    // scrollPosition: 8600, // needs update
     scrollProgress: 0.4298495526565702, // needs update
   },
   END: {
@@ -189,6 +195,12 @@ const ACTIVE_PROJECT_MAPPING = {
   5: 'C5',
   6: 'C6',
   7: 'C7',
+};
+
+const FOG_PARAMS = {
+  // fogHorizonColor: 0xe4dcff,
+  fogHorizonColor: 0xf4f3f1,
+  fogDensity: 0.0,
 };
 
 // export const useStore = create((set) => ({
@@ -225,7 +237,7 @@ function Model(props) {
     '/assets/models/crypto03.glb'
   );
 
-  const { scene, camera, gl } = useThree();
+  const { scene, camera, gl, raycaster } = useThree();
   const cameraGroup = useRef(null);
   const character = useRef(null);
   const activeProjectRef = useRef(null);
@@ -284,26 +296,36 @@ function Model(props) {
     loadCameraLookAtData();
   }, []);
 
-  const savedScrollY = useRef(0);
+  const fog = useMemo(() => {
+    const fog = new THREE.FogExp2(
+      FOG_PARAMS.fogHorizonColor,
+      FOG_PARAMS.fogDensity
+    );
+    return fog;
+  }, []);
 
   useEffect(() => {
-    // SCROLL LOCK ON PROJECT VIEW
+    const fogInstance = fog;
+    scene.fog = fogInstance;
+  }, []);
+
+  useEffect(() => {}, []);
+
+  useEffect(() => {
     activeProjectRef.current = activeProject;
-    if (activeProject !== null) {
-      const lookAtKey = ACTIVE_PROJECT_MAPPING[activeProjectRef.current];
-      const lookAtPosition = LOOK_AT_POSITIONS[lookAtKey];
-      savedScrollY.current = lookAtPosition.scrollPosition;
-      document.body.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-    } else {
-      document.body.style.overflow = 'auto';
-      document.body.style.position = 'static';
-      window.scrollTo({ top: savedScrollY.current, behavior: 'instant' });
-    }
   }, [activeProject]);
+
+  const snappedPosition = useRef(window.scrollY);
 
   useEffect(() => {
     const handleScroll = (e) => {
+      if (
+        activeProjectRef.current &&
+        Math.abs(snappedPosition.current - window.scrollY) > 750
+      ) {
+        setActiveProject(null);
+      }
+
       scrollProgress.current =
         window.scrollY / (document.body.scrollHeight - window.innerHeight);
 
@@ -311,6 +333,25 @@ function Model(props) {
       console.log(scrollProgress.current, scrollProgressPixels);
       // setActiveProject(null);
       setScrollProgress(scrollProgress.current);
+
+      if (scrollProgress.current < 0.0375) {
+        setActiveProject(null);
+        gsap.to(myFog, {
+          value: 0,
+          duration: 1,
+          onUpdate: () => {
+            scene.fog.density = myFog.value;
+          },
+        });
+      } else {
+        gsap.to(myFog, {
+          value: 0.02,
+          duration: 2,
+          onUpdate: () => {
+            scene.fog.density = myFog.value;
+          },
+        });
+      }
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -318,65 +359,104 @@ function Model(props) {
 
   const scrollTimer = useRef(null);
 
+  const myFog = {
+    value: 0.0,
+  };
+
   useEffect(() => {
-    // write debounce function to handle scroll snapping
-    const debounce = (func, wait, immediate) => {
-      let timeout;
-      return function () {
-        const context = this,
-          args = arguments;
-        const later = function () {
-          timeout = null;
-          if (!immediate) func.apply(context, args);
-        };
-        const callNow = immediate && !timeout;
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-        if (callNow) func.apply(context, args);
-      };
-    };
+    // // write debounce function to handle scroll snapping
+    // const debounce = (func, wait, immediate) => {
+    //   let timeout;
+    //   return function () {
+    //     const context = this,
+    //       args = arguments;
+    //     const later = function () {
+    //       timeout = null;
+    //       if (!immediate) func.apply(context, args);
+    //     };
+    //     const callNow = immediate && !timeout;
+    //     clearTimeout(timeout);
+    //     timeout = setTimeout(later, wait);
+    //     if (callNow) func.apply(context, args);
+    //   };
+    // };
 
     const handleScrollSnap = () => {
-      if (scrollTimer.current) {
-        clearTimeout(scrollTimer.current);
-      }
+      // if (activeProjectRef.current !== null) return;
+      // if (scrollTimer.current) {
+      clearTimeout(scrollTimer.current);
+      // }
 
       let scrollPosition = window.scrollY;
-      if (scrollProgress.current >= 0.05 && scrollProgress.current < 0.09) {
-        scrollPosition = 1250;
+      if (scrollProgress.current < 0.05) {
+        // gsap.to(myFog, {
+        //   value: 0,
+        //   duration: 1,
+        //   onUpdate: () => {
+        //     scene.fog.density = myFog.value;
+        //   },
+        // });
+      } else if (
+        scrollProgress.current >= 0.05 &&
+        scrollProgress.current < 0.09
+      ) {
+        scrollPosition = getScrollPixelFromProgress(
+          LOOK_AT_POSITIONS.SCULPTURE.scrollProgress
+        );
+        // gsap.to(myFog, {
+        //   value: 0.02,
+        //   duration: 2,
+        //   onUpdate: () => {
+        //     scene.fog.density = myFog.value;
+        //   },
+        // });
       } else if (
         scrollProgress.current >= 0.09 &&
         scrollProgress.current < 0.19
       ) {
-        scrollPosition = 3200;
+        // scrollPosition = 3200;
+        scrollPosition = getScrollPixelFromProgress(
+          LOOK_AT_POSITIONS.C1.scrollProgress
+        );
       } else if (
         scrollProgress.current >= 0.19 &&
         scrollProgress.current < 0.29
       ) {
-        scrollPosition = 5100;
+        scrollPosition = getScrollPixelFromProgress(
+          LOOK_AT_POSITIONS.C2.scrollProgress
+        );
       } else if (
         scrollProgress.current >= 0.29 &&
         scrollProgress.current < 0.38
       ) {
-        scrollPosition = 6800;
+        scrollPosition = getScrollPixelFromProgress(
+          LOOK_AT_POSITIONS.C3.scrollProgress
+        );
       } else if (
         scrollProgress.current >= 0.38 &&
         scrollProgress.current < 0.47
       ) {
-        scrollPosition = 8600;
+        scrollPosition = getScrollPixelFromProgress(
+          LOOK_AT_POSITIONS.C4.scrollProgress
+        );
       } else if (
         scrollProgress.current >= 0.51 &&
         scrollProgress.current < 0.6
       ) {
-        scrollPosition = 11525;
+        scrollPosition = getScrollPixelFromProgress(
+          LOOK_AT_POSITIONS.C5.scrollProgress
+        );
       }
-
       scrollTimer.current = setTimeout(() => {
+        // if (activeProjectRef.current) return;
         window.scrollTo({ top: scrollPosition, behavior: 'smooth' });
-      }, 5);
+        // setActiveProject(activeProjectRef.current);
+        snappedPosition.current = scrollPosition;
+      }, 25);
     };
 
-    const debouncedScrollSnap = debounce(handleScrollSnap, 50);
+    const debouncedScrollSnap = handleScrollSnap;
+    // const debouncedScrollSnap = debounce(handleScrollSnap, 35);
 
     window.addEventListener('scroll', debouncedScrollSnap);
 
@@ -385,16 +465,35 @@ function Model(props) {
     };
   }, []);
 
+  const mouse = useRef({
+    world: new THREE.Vector2(),
+    uv: new THREE.Vector2(),
+    isInit: false,
+  });
   const rotationTarget = useRef({ x: 0, y: 0, z: 0 });
 
   useEffect(() => {
-    // PARALLAX EFFECT
+    // PARALLAX EFFECT + MOUSE POSITION TRACKING
     const handleMouseMove = (e) => {
+      // PARALLAX EFFECT
       const x = e.clientX / window.innerWidth - 0.5;
       const y = e.clientY / window.innerHeight - 0.5;
 
       rotationTarget.current.y = -x * 1;
       rotationTarget.current.x = -y * 1;
+
+      // MOUSE POSITION TRACKING
+      const event = {
+        x: (e.clientX / window.innerWidth) * 2 - 1,
+        y: -(e.clientY / window.innerHeight) * 2 + 1,
+      };
+
+      if (!mouse.current.isInit) {
+        mouse.current.isInit = true;
+        mouse.current.world.copy(event);
+        mouse.current.uv.copy(event);
+      }
+      mouse.current.world.copy(event);
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -404,18 +503,6 @@ function Model(props) {
     };
   }, []);
 
-  // const { iterate, density, velocity, pressure, curl, radius } = useControls(
-  //   'Fluid',
-  //   {
-  //     iterate: { value: 3, min: 1, max: 10 },
-  //     density: { value: 0.95, min: 0, max: 1 },
-  //     velocity: { value: 0.98, min: 0, max: 1 },
-  //     pressure: { value: 0.8, min: 0, max: 1 },
-  //     curl: { value: 2.5, min: 0, max: 50 },
-  //     radius: { value: 0.3, min: 0.01, max: 0.5 },
-  //   },
-  //   { collapsed: true }
-  // );
   const canvas01 = useRef(null);
   const canvas02 = useRef(null);
   const canvas03 = useRef(null);
@@ -423,102 +510,32 @@ function Model(props) {
   const canvas05 = useRef(null);
   const canvas06 = useRef(null);
   const canvas07 = useRef(null);
-  const mouse = useRef({
-    world: new THREE.Vector2(),
-    uv: new THREE.Vector2(),
-    isInit: false,
-  });
-  const raycaster = new THREE.Raycaster();
-  // const fluid = useRef(
-  //   new Fluid(gl, {
-  //     curlStrength: 0,
-  //   })
-  // );
-
-  // useEffect(() => {
-  //   const fluidInstance = fluid.current;
-
-  //   return () => {
-  //     fluidInstance.destroy();
-  //   };
-  // }, []);
-
-  // useEffect(() => {
-  //   const handleMouseMove = (e) => {
-  //     // if pointer is down, don't do anything
-  //     // if (e.buttons) return;
-  //     const event = {
-  //       x: (e.clientX / window.innerWidth) * 2 - 1,
-  //       y: -(e.clientY / window.innerHeight) * 2 + 1,
-  //     };
-
-  //     if (!mouse.current.isInit) {
-  //       mouse.current.isInit = true;
-  //       mouse.current.world.copy(event);
-  //       mouse.current.uv.copy(event);
-  //     }
-
-  //     // console.log(mouse.current.world, mouse.current.uv);
-  //     raycaster.setFromCamera(mouse.current.world, camera);
-  //     const intersects = raycaster.intersectObjects([
-  //       canvas01.current,
-  //       canvas02.current,
-  //       canvas03.current,
-  //       canvas04.current,
-  //       canvas05.current,
-  //       canvas06.current,
-  //       canvas07.current,
-  //     ]);
-
-  //     // console.log('intersects: ', intersects);
-  //     if (intersects.length > 0) {
-  //       console.log(intersects[0]);
-  //       const { x, y } = intersects[0].uv;
-
-  //       // const deltaX = x - mouse.current.uv.x;
-  //       // const deltaY = y - mouse.current.uv.y;
-
-  //       // mouse.current.uv.copy(intersects[0].uv);
-
-  //       // if (Math.abs(deltaX) || Math.abs(deltaY)) {
-  //       //   // console.log(x, y, deltaX, deltaY);
-  //       //   if (fluid.current) {
-  //       //     fluid.current.splats.push({
-  //       //       x: x,
-  //       //       y: y,
-  //       //       dx: deltaX * 5000,
-  //       //       dy: deltaY * 5000,
-  //       //     });
-  //       //   }
-  //       // }
-  //     }
-
-  //     mouse.current.world.copy(event);
-  //   };
-
-  //   window.addEventListener('mousemove', handleMouseMove);
-
-  //   return () => {
-  //     window.removeEventListener('mousemove', handleMouseMove);
-  //   };
-  // }, []);
 
   const handleCanvasClick = (e, canvasId) => {
+    if (e.distance > 10) return;
     e.stopPropagation();
     if (!activeProject) {
       setActiveProject(canvasId);
+      setActiveCursor(true);
     } else {
       setActiveProject(null);
+      setActiveCursor(false);
     }
   };
 
-  const handleCanvasMouseEnter = () => {
+  const handleCanvasMouseEnter = (e) => {
+    e.stopPropagation();
+    if (e.distance > 10) {
+      setActiveCursor(false);
+      return;
+    }
     setActiveCursor(true);
     // set cursor to pointer
     document.body.style.cursor = 'pointer';
   };
 
-  const handleCanvasMouseLeave = () => {
+  const handleCanvasMouseLeave = (e) => {
+    e.stopPropagation();
     setActiveCursor(false);
     // reset cursor
     document.body.style.cursor = 'auto';
@@ -587,13 +604,13 @@ function Model(props) {
       key = 'START';
     } else if (scrollProgress < 0.08) {
       key = 'SCULPTURE';
-    } else if (scrollProgress < 0.18) {
+    } else if (scrollProgress < 0.17) {
       key = 'C1';
-    } else if (scrollProgress < 0.285) {
+    } else if (scrollProgress < 0.275) {
       key = 'C2';
-    } else if (scrollProgress < 0.37) {
+    } else if (scrollProgress < 0.35) {
       key = 'C3';
-    } else if (scrollProgress < 0.45) {
+    } else if (scrollProgress < 0.44) {
       key = 'C4';
     } else if (scrollProgress < 0.49) {
       key = 'PLANT';
@@ -601,9 +618,9 @@ function Model(props) {
       key = 'C5';
     } else if (scrollProgress < 0.686) {
       key = 'C6';
-    } else if (scrollProgress < 0.77) {
+    } else if (scrollProgress < 0.775) {
       key = 'C7';
-    } else if (scrollProgress < 0.88) {
+    } else if (scrollProgress < 0.89) {
       key = 'ROCK';
       // key = 'END';
     } else {
@@ -612,7 +629,39 @@ function Model(props) {
     return key;
   };
 
+  const bonsaiTexture = useMemo(() => {
+    const texture = new THREE.TextureLoader().load(bonsaiImage);
+    return texture;
+  }, []);
+
+  const uniforms = useMemo(() => {
+    return {
+      uTexture: { value: bonsaiTexture },
+      uFluid: { value: null },
+    };
+  }, []);
+
+  const bonsaiRef = useRef(null);
+  const [showEnd, setShowEnd] = useState(false);
+  const showEndRef = useRef(false);
+
+  const getScrollPixelFromProgress = (progress) => {
+    const totalCurveLength = cameraPositionPathData.current.curve.getLength();
+    const totalViewportHeight = document.body.scrollHeight - window.innerHeight;
+    const currentCurvePosition = progress * totalCurveLength;
+    const currentCurveProgress = currentCurvePosition / totalCurveLength;
+    const currentScrollPosition = currentCurveProgress * totalViewportHeight;
+
+    return currentScrollPosition;
+  };
+
   useFrame((state, delta) => {
+    const scrollProgressPixels = window.scrollY;
+    // console.log(scrollProgress.current, scrollProgressPixels);
+    // // console.log('scrollProgress.current: ', scrollProgress.current);
+    // console.log('activeProject: ', activeProject);
+    // console.log('savedScrollY.current: ', savedScrollY.current);
+    // console.log('-------------------');
     // update uTime uniform
     // uniforms.uTime.value = state.clock.elapsedTime;
 
@@ -632,19 +681,21 @@ function Model(props) {
     // }
 
     if (cameraPositionPathData.current && cameraLookAtPathData.current) {
-      if (activeProject !== null) {
-        const lookAtKey = ACTIVE_PROJECT_MAPPING[activeProject];
-        const lookAtPosition = LOOK_AT_POSITIONS[lookAtKey];
+      // if (activeProject !== null) {
+      //   const lookAtKey = ACTIVE_PROJECT_MAPPING[activeProject];
+      //   const lookAtPosition = LOOK_AT_POSITIONS[lookAtKey];
 
-        scrollProgress.current = lookAtPosition.scrollProgress;
-        setScrollProgress(lookAtPosition.scrollProgress);
-        window.scrollTo({
-          top: lookAtPosition.scrollPosition,
-          behavior: 'instant',
-        });
-      }
+      //   scrollProgress.current = lookAtPosition.scrollProgress;
+      //   setScrollProgress(lookAtPosition.scrollProgress);
+      //   window.scrollTo({
+      //     top: getScrollPixelFromProgress(lookAtPosition.scrollProgress),
+      //     behavior: 'instant',
+      //   });
+      // }
       const curve = cameraPositionPathData.current.curve;
+      // console.log('curve.length: ', curve.getLength());
       const point = curve.getPoint(scrollProgress.current);
+      // console.log('pixels: ', getScrollPixelFromProgress(0.15784541015143294));
       // points are relative to curve global position so we need to add the camera position
       point.add(curvePosition);
 
@@ -671,8 +722,36 @@ function Model(props) {
         )
       );
 
-      camera.quaternion.slerp(target.quaternion, 0.025);
+      const rotationSpeed = scrollProgress.current >= 0.79 ? 0.1 : 0.03;
+      camera.quaternion.slerp(target.quaternion, rotationSpeed);
+      // camera.quaternion.slerp(target.quaternion, 0.025);
     }
+
+    if (scrollProgress.current >= 0.05) {
+      setShowEnd(true);
+    } else {
+      setShowEnd(false);
+    }
+
+    raycaster.setFromCamera(mouse.current.world, camera);
+    const intersects = raycaster.intersectObjects([
+      canvas01.current,
+      canvas02.current,
+      canvas03.current,
+      canvas04.current,
+      canvas05.current,
+      canvas06.current,
+      canvas07.current,
+    ]);
+
+    if (intersects.length > 0 && intersects[0].distance < 10) {
+      setActiveCursor(true);
+    } else if (intersects.length) {
+      setActiveCursor(false);
+    }
+    //  else {
+    //   setActiveCursor(false);
+    // }
   });
 
   const waterBack = useRef(null);
@@ -714,45 +793,14 @@ function Model(props) {
           /> */}
       <TitleTest />
       <Clouds />
-      {/* <WaterTest /> */}
-      <WaterSurfaceSimple
-        width={100}
-        length={100}
-        distortionScale={1}
-        fxDistortionFactor={0.1}
-        // fxDistortionFactor={0.01}
-        speed={0.1}
-        position={[0, -0.05, 0]}
-      >
-        <FluidSim radius={0.00025} />
-      </WaterSurfaceSimple>
-      <WaterSurfaceSimple
-        width={175}
-        length={175}
-        distortionScale={1}
-        fxDistortionFactor={0.1}
-        // fxDistortionFactor={0.01}
-        speed={0.2}
-        position={[-150, -0.1, -220]}
-      >
-        <FluidSim radius={0.0005} />
-      </WaterSurfaceSimple>
-      <WaterSurfaceSimple
-        distortionScale={1}
-        fxDistortionFactor={0.1}
-        // fxDistortionFactor={0.01}
-        speed={0.2}
-        position={[100, -0.05, -200]}
-      ></WaterSurfaceSimple>
-      <WaterSurfaceSimple
-        position={[-38.268, 0.3, -114.098]}
-        geometry={waterInteriorGeometry}
-        distortionScale={0.4}
-        fxDistortionFactor={0.025}
-        speed={0.2}
-      >
-        <FluidSim radius={0.005} />
-      </WaterSurfaceSimple>
+      {showEnd && (
+        <>
+          <TitleEnd />
+          <Bonsai />
+        </>
+      )}
+
+      <WaterSurfaces />
 
       <group ref={cameraGroup}>
         <PerspectiveCamera
@@ -761,7 +809,7 @@ function Model(props) {
           fov={75}
           aspect={window.innerWidth / window.innerHeight}
           near={0.1}
-          far={2000}
+          far={1000}
           // far={300}
           zoom={1}
           // position={[0, 1.5, 0]}
@@ -1148,7 +1196,7 @@ function Model(props) {
             opacity={0.2}
           />
         </mesh>
-        <mesh
+        {/* <mesh
           geometry={nodes.island001.geometry}
           material={materials['rock.001']}
           position={[-250.715, 0, -296.708]}
@@ -1167,7 +1215,7 @@ function Model(props) {
           position={[-217.109, -0.27, -323.345]}
           rotation={[0, 1.5, 0]}
           scale={23.858}
-        />
+        /> */}
         {/* <mesh
           geometry={nodes.island005.geometry}
           material={materials['rock.001']}
@@ -1203,11 +1251,15 @@ function Model(props) {
           rotation={[0, -0.628, 0]}
           scale={42.295}
         />
-        <mesh
-          geometry={nodes.islandSphere.geometry}
-          material={materials.sculpture}
-          position={[-290.987, 7.529, -331.563]}
-        />
+        {/* {showEnd && (
+          <mesh
+            geometry={nodes.islandSphere.geometry}
+            material={materials.sculpture}
+            position={[-472.3, 70.529, -487.2]}
+            // position={[-290.987, 7.529, -331.563]}
+            scale={[12, 12, 12]}
+          />
+        )} */}
         {/* <mesh
           ref={waterBack}
           // geometry={nodes.outdoorWaterBack.geometry}
