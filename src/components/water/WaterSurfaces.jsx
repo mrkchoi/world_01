@@ -19,7 +19,8 @@ function WaterSurfaces() {
         speed={0.1}
         position={[0, -0.05, 0]}
       >
-        <FluidSim radius={0.00025} />
+        <FluidSim radius={0.0005} />
+        {/* <FluidSim radius={0.00025} /> */}
       </WaterSurfaceSimple>
       <WaterSurfaceSimple
         width={175}

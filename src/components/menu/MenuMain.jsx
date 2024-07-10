@@ -61,16 +61,24 @@ function MenuMain({ handleClick, menuOpen }) {
     }
   }, [menuOpen]);
 
+  const handleClickAbout = () => {
+    window.scrollTo({
+      top: document.body.scrollHeight,
+      left: 0,
+      behavior: 'smooth',
+    });
+  };
+
   return (
     <div
       ref={menuRef}
-      className="absolute right-0 top-[4rem] z-50 w-[450px] rounded-2xl bg-white p-4 pb-12 pt-12 shadow-lg will-change-transform"
-      // className="absolute right-0 top-[4rem] z-50 w-[450px] translate-x-[150%] transform rounded-2xl bg-white p-4 pb-8 pt-8 shadow-lg will-change-transform"
+      className="pointer-events-none absolute right-0 top-[4rem] z-50 w-[450px] translate-x-[100%] rounded-2xl bg-white p-4 pb-12 pt-12 opacity-0 shadow-lg will-change-transform"
+      // className="absolute right-0 top-[4rem] z-50 w-[450px] rounded-2xl bg-white p-4 pb-12 pt-12 shadow-lg will-change-transform"
     >
       <div ref={items01} className="mb-8">
         <ul className="flex flex-col">
           <li>
-            <button className="menuText__btn font-regular relative flex w-full items-center justify-between rounded-full p-2 pl-5 pr-5 text-left text-3xl uppercase">
+            <button className="menuText__btn relative flex w-full items-center justify-between rounded-full p-2 pl-5 pr-5 text-left text-3xl font-medium uppercase">
               <span className="menuText__wrapper">
                 <span className="menuText__main">overview</span>
                 <span className="menuText__secondary">overview</span>
@@ -106,7 +114,10 @@ function MenuMain({ handleClick, menuOpen }) {
             </button>
           </li>
           <li>
-            <button className="menuText__btn font-regular flex w-full items-center justify-between rounded-full p-2 pl-5 pr-5 text-left text-3xl uppercase">
+            <button
+              className="menuText__btn flex w-full items-center justify-between rounded-full p-2 pl-5 pr-5 text-left text-3xl font-medium uppercase"
+              onClick={handleClickAbout}
+            >
               <span className="menuText__wrapper">
                 <span className="menuText__main">about</span>
                 <span className="menuText__secondary">about</span>

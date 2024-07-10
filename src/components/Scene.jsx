@@ -5,6 +5,7 @@ Command: npx gltfjsx@6.2.18 portfolio03.glb
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  CameraShake,
   MeshReflectorMaterial,
   PerspectiveCamera,
   Stats,
@@ -197,11 +198,11 @@ const ACTIVE_PROJECT_MAPPING = {
   7: 'C7',
 };
 
-const FOG_PARAMS = {
-  // fogHorizonColor: 0xe4dcff,
-  fogHorizonColor: 0xf4f3f1,
-  fogDensity: 0.0,
-};
+// const FOG_PARAMS = {
+//   // fogHorizonColor: 0xe4dcff,
+//   fogHorizonColor: 0xf4f3f1,
+//   fogDensity: 0.0,
+// };
 
 // export const useStore = create((set) => ({
 //   animationsMap: new Map(),
@@ -296,18 +297,18 @@ function Model(props) {
     loadCameraLookAtData();
   }, []);
 
-  const fog = useMemo(() => {
-    const fog = new THREE.FogExp2(
-      FOG_PARAMS.fogHorizonColor,
-      FOG_PARAMS.fogDensity
-    );
-    return fog;
-  }, []);
+  // const fog = useMemo(() => {
+  //   const fog = new THREE.FogExp2(
+  //     FOG_PARAMS.fogHorizonColor,
+  //     FOG_PARAMS.fogDensity
+  //   );
+  //   return fog;
+  // }, []);
 
-  useEffect(() => {
-    const fogInstance = fog;
-    scene.fog = fogInstance;
-  }, []);
+  // useEffect(() => {
+  //   const fogInstance = fog;
+  //   scene.fog = fogInstance;
+  // }, []);
 
   useEffect(() => {}, []);
 
@@ -316,6 +317,8 @@ function Model(props) {
   }, [activeProject]);
 
   const snappedPosition = useRef(window.scrollY);
+
+  const FOOTER_HEIGHT = window.innerHeight;
 
   useEffect(() => {
     const handleScroll = (e) => {
@@ -326,32 +329,43 @@ function Model(props) {
         setActiveProject(null);
       }
 
-      scrollProgress.current =
-        window.scrollY / (document.body.scrollHeight - window.innerHeight);
+      // scrollProgress.current =
+      //   window.scrollY / (document.body.scrollHeight + window.innerHeight);
+      // scrollProgress.current =
+      //   window.scrollY / (document.body.scrollHeight - window.innerHeight);
+
+      // update scroll progress based on scroll position excluding footer with height of 100vh (window.innerHeight)
+
+      const totalScrollableHeight =
+        document.body.scrollHeight - window.innerHeight - FOOTER_HEIGHT;
+      scrollProgress.current = Math.min(
+        window.scrollY / totalScrollableHeight,
+        1
+      );
 
       const scrollProgressPixels = window.scrollY;
       console.log(scrollProgress.current, scrollProgressPixels);
       // setActiveProject(null);
       setScrollProgress(scrollProgress.current);
 
-      if (scrollProgress.current < 0.0375) {
-        setActiveProject(null);
-        gsap.to(myFog, {
-          value: 0,
-          duration: 1,
-          onUpdate: () => {
-            scene.fog.density = myFog.value;
-          },
-        });
-      } else {
-        gsap.to(myFog, {
-          value: 0.02,
-          duration: 2,
-          onUpdate: () => {
-            scene.fog.density = myFog.value;
-          },
-        });
-      }
+      // if (scrollProgress.current < 0.0375) {
+      //   setActiveProject(null);
+      //   gsap.to(myFog, {
+      //     value: 0,
+      //     duration: 1,
+      //     onUpdate: () => {
+      //       scene.fog.density = myFog.value;
+      //     },
+      //   });
+      // } else {
+      //   gsap.to(myFog, {
+      //     value: 0.02,
+      //     duration: 2,
+      //     onUpdate: () => {
+      //       scene.fog.density = myFog.value;
+      //     },
+      //   });
+      // }
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -647,7 +661,8 @@ function Model(props) {
 
   const getScrollPixelFromProgress = (progress) => {
     const totalCurveLength = cameraPositionPathData.current.curve.getLength();
-    const totalViewportHeight = document.body.scrollHeight - window.innerHeight;
+    const totalViewportHeight =
+      document.body.scrollHeight - window.innerHeight - FOOTER_HEIGHT;
     const currentCurvePosition = progress * totalCurveLength;
     const currentCurveProgress = currentCurvePosition / totalCurveLength;
     const currentScrollPosition = currentCurveProgress * totalViewportHeight;
@@ -795,14 +810,27 @@ function Model(props) {
       <Clouds />
       {showEnd && (
         <>
-          <TitleEnd />
-          <Bonsai />
+          {/* <TitleEnd />
+          <Bonsai /> */}
         </>
       )}
 
       <WaterSurfaces />
 
       <group ref={cameraGroup}>
+        {/* <CameraShake
+          intensity={0.1}
+          decay={true}
+          decayRate={0.5}
+          active={true}
+          speed={0.1}
+          maxRotation={0.1}
+          maxTranslation={0.1}
+          maxZoom={0.1}
+          minRotation={0.01}
+          minTranslation={0.1}
+          minZoom={0.0}
+        /> */}
         <PerspectiveCamera
           makeDefault
           // ref={camera}

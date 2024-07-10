@@ -12,14 +12,24 @@ const FLUID = {
   iterate: { value: 3, min: 1, max: 10 },
   density: { value: 0.97, min: 0, max: 1 },
   velocity: { value: 0.94, min: 0, max: 1 },
-  pressure: { value: 0.7, min: 0, max: 1 },
-  curl: { value: 50, min: 0, max: 50 },
+  pressure: { value: 0.99, min: 0, max: 1 },
+  curl: { value: 20, min: 0, max: 50 },
   // radius: { value: 0.0001, min: 0.0001, max: 0.1 },
   // radius: { value: 0.02, min: 0.01, max: 0.1 },
-  deltaMultiplier: { value: 1, min: 1, max: 10000 },
+  deltaMultiplier: { value: 1000, min: 1, max: 10000 },
 };
+// const FLUID = {
+//   iterate: { value: 3, min: 1, max: 10 },
+//   density: { value: 0.97, min: 0, max: 1 },
+//   velocity: { value: 0.94, min: 0, max: 1 },
+//   pressure: { value: 0.7, min: 0, max: 1 },
+//   curl: { value: 50, min: 0, max: 50 },
+//   // radius: { value: 0.0001, min: 0.0001, max: 0.1 },
+//   // radius: { value: 0.02, min: 0.01, max: 0.1 },
+//   deltaMultiplier: { value: 1, min: 1, max: 10000 },
+// };
 
-function FluidSim({ radius }) {
+function FluidSim({ radius = 0.0005 }) {
   // const {
   //   iterate,
   //   density,

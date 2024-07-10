@@ -45,20 +45,20 @@ function BackgroundAudio() {
     };
   }, []);
 
-  useEffect(() => {
-    const handleClick = () => {
-      if (initialAudio) return;
-      setInitialAudio(true);
-      setIsAudioOn(true);
-      audio.play();
-    };
+  // useEffect(() => {
+  //   const handleClick = () => {
+  //     if (initialAudio) return;
+  //     setInitialAudio(true);
+  //     setIsAudioOn(true);
+  //     audio.play();
+  //   };
 
-    document.addEventListener('click', handleClick);
+  //   document.addEventListener('click', handleClick);
 
-    return () => {
-      document.removeEventListener('click', handleClick);
-    };
-  }, []);
+  //   return () => {
+  //     document.removeEventListener('click', handleClick);
+  //   };
+  // }, []);
 
   return (
     <div className="select-none">

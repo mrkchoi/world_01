@@ -187,7 +187,7 @@ body::-webkit-scrollbar {
 }
 .menuBtn__textWrapper span {
   will-change: transform;
-  transition: transform 0.2s ease-in-out;
+  transition: transform 0.25s ease-in-out;
   display: block;
   /* border: 1px solid black; */
   /* line-height: 1.1; */
@@ -221,7 +221,7 @@ body::-webkit-scrollbar {
 }
 .menuText__wrapper span {
   will-change: transform;
-  transition: transform 0.2s ease-in-out;
+  transition: transform 0.25s ease-in-out;
   display: block;
   /* border: 1px solid black; */
   line-height: 1.1;
@@ -261,7 +261,7 @@ body::-webkit-scrollbar {
 }
 .menuText__iconWrapper svg {
   will-change: transform;
-  transition: transform 0.2s ease-in-out;
+  transition: transform 0.25s ease-in-out;
 }
 .menuText__icon--primary {
   position: relative;

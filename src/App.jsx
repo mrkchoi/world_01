@@ -29,6 +29,7 @@ import ProjectTitles from './components/projects/ProjectTitles';
 import Projects from './components/projects/Projects';
 import { create } from 'zustand';
 import { toneMappingExposure } from 'three/examples/jsm/nodes/display/ToneMappingNode.js';
+import Footer from './components/footer/Footer';
 
 // const PERSPECTIVE = 800;
 // const FOV =
@@ -111,7 +112,7 @@ function App() {
   const [dpr, setDpr] = useState(1);
 
   return (
-    <div className="main h-[2000vh] w-full">
+    <>
       <div className="fixed left-0 top-0 h-screen w-full">
         <Canvas
           shadows
@@ -144,13 +145,18 @@ function App() {
           </Suspense>
         </Canvas>
       </div>
-      <Header />
-      {/* <Instructions /> */}
-      {/* <BackgroundAudio /> */}
-      {/* <Title /> */}
-      <Projects />
-      <Cursor />
-    </div>
+      <div>
+        <Header />
+        {/* <Instructions /> */}
+        {/* <Title /> */}
+        <Projects />
+        <Cursor />
+      </div>
+      <div className="main pointer-events-none relative z-[9] h-[2000vh] w-full">
+        <div className="h-[1900vh] w-full"></div>
+        <Footer />
+      </div>
+    </>
   );
 }
 
