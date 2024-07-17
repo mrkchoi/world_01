@@ -6,6 +6,8 @@ Command: npx gltfjsx@6.2.18 portfolio03.glb
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   CameraShake,
+  Cloud,
+  CloudInstance,
   MeshReflectorMaterial,
   PerspectiveCamera,
   Stats,
@@ -57,6 +59,10 @@ import Bonsai from './Bonsai';
 import useScrollBlock from '../hooks/useScrollBlock';
 import WaterSurfaces from './water/WaterSurfaces';
 import TitleEnd from './TitleEnd';
+import CloudsLow from './clouds/CloudsLow';
+import CloudsHorizon from './clouds/CloudsHorizon';
+import CanvasProject from './canvas/CanvasProject';
+import logoImg from '/assets/images/projects/00_logo.webp';
 
 // extend({ MeshReflectorMaterial });
 
@@ -181,9 +187,17 @@ const LOOK_AT_POSITIONS = {
     // scrollPosition: 8600, // needs update
     scrollProgress: 0.4298495526565702, // needs update
   },
+  SCULPTURE2: {
+    x: -51.2223,
+    y: 3.56651711467,
+    z: -138.784,
+    // scrollPosition: 8600, // needs update
+    scrollProgress: 0.4298495526565702, // needs update
+  },
   END: {
     x: -97.2037,
-    y: 3.56651711467,
+    y: 5.2405,
+    // y: 3.56651711467,
     z: -164.411,
   },
 };
@@ -233,6 +247,13 @@ function Model(props) {
   const activeProject = useStore((state) => state.activeProject);
   const setActiveProject = useStore((state) => state.setActiveProject);
   const setActiveCursor = useStore((state) => state.setActiveCursor);
+  const isAtEnd = useStore((state) => state.isAtEnd);
+  const setIsAtEnd = useStore((state) => state.setIsAtEnd);
+  const isScrollLocked = useStore((state) => state.isScrollLocked);
+  const isMenuOpen = useStore((state) => state.isMenuOpen);
+  const lenis = useStore((state) => state.lenis);
+  const setIsScrollLocked = useStore((state) => state.setIsScrollLocked);
+  // const loadingManager = useStore((state) => state.loadingManager);
 
   const { nodes: characterNodes, animations: characterAnimations } = useGLTF(
     '/assets/models/crypto03.glb'
@@ -318,10 +339,19 @@ function Model(props) {
 
   const snappedPosition = useRef(window.scrollY);
 
-  const FOOTER_HEIGHT = window.innerHeight;
+  const FOOTER_HEIGHT = 0;
+  // const FOOTER_HEIGHT = window.innerHeight;
+
+  const isMenuOpenRef = useRef(isMenuOpen);
+
+  useEffect(() => {
+    isMenuOpenRef.current = isMenuOpen;
+  }, [isMenuOpen]);
 
   useEffect(() => {
     const handleScroll = (e) => {
+      // console.log('isMenuOpen.current', isMenuOpenRef.current);
+      // if (isMenuOpenRef.current) return;
       if (
         activeProjectRef.current &&
         Math.abs(snappedPosition.current - window.scrollY) > 750
@@ -344,7 +374,7 @@ function Model(props) {
       );
 
       const scrollProgressPixels = window.scrollY;
-      console.log(scrollProgress.current, scrollProgressPixels);
+      // console.log(scrollProgress.current, scrollProgressPixels);
       // setActiveProject(null);
       setScrollProgress(scrollProgress.current);
 
@@ -369,7 +399,7 @@ function Model(props) {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [setScrollProgress]);
+  }, [isScrollLocked, lenis, setActiveProject, setScrollProgress]);
 
   const scrollTimer = useRef(null);
 
@@ -396,6 +426,8 @@ function Model(props) {
     // };
 
     const handleScrollSnap = () => {
+      // console.log('isMenuOpenRef.current', isMenuOpenRef.current);
+      // if (isMenuOpenRef.current) return;
       // if (activeProjectRef.current !== null) return;
       // if (scrollTimer.current) {
       clearTimeout(scrollTimer.current);
@@ -477,7 +509,7 @@ function Model(props) {
     return () => {
       window.removeEventListener('scroll', debouncedScrollSnap);
     };
-  }, []);
+  }, [isScrollLocked, lenis]);
 
   const mouse = useRef({
     world: new THREE.Vector2(),
@@ -517,13 +549,13 @@ function Model(props) {
     };
   }, []);
 
-  const canvas01 = useRef(null);
-  const canvas02 = useRef(null);
-  const canvas03 = useRef(null);
-  const canvas04 = useRef(null);
-  const canvas05 = useRef(null);
-  const canvas06 = useRef(null);
-  const canvas07 = useRef(null);
+  // const canvas01 = useRef(null);
+  // const canvas02 = useRef(null);
+  // const canvas03 = useRef(null);
+  // const canvas04 = useRef(null);
+  // const canvas05 = useRef(null);
+  // const canvas06 = useRef(null);
+  // const canvas07 = useRef(null);
 
   const handleCanvasClick = (e, canvasId) => {
     if (e.distance > 10) return;
@@ -632,9 +664,11 @@ function Model(props) {
       key = 'C5';
     } else if (scrollProgress < 0.686) {
       key = 'C6';
-    } else if (scrollProgress < 0.775) {
+    } else if (scrollProgress < 0.76) {
       key = 'C7';
-    } else if (scrollProgress < 0.89) {
+    } else if (scrollProgress < 0.785) {
+      key = 'SCULPTURE2';
+    } else if (scrollProgress < 0.88) {
       key = 'ROCK';
       // key = 'END';
     } else {
@@ -660,7 +694,8 @@ function Model(props) {
   const showEndRef = useRef(false);
 
   const getScrollPixelFromProgress = (progress) => {
-    const totalCurveLength = cameraPositionPathData.current.curve.getLength();
+    const totalCurveLength =
+      cameraPositionPathData.current?.curve.getLength() || 0;
     const totalViewportHeight =
       document.body.scrollHeight - window.innerHeight - FOOTER_HEIGHT;
     const currentCurvePosition = progress * totalCurveLength;
@@ -669,6 +704,22 @@ function Model(props) {
 
     return currentScrollPosition;
   };
+
+  const getRotationSpeed = (progress) => {
+    if (progress <= 0.03) {
+      return 0.2;
+    } else if (progress >= 87 && progress <= 90) {
+      return 0.05;
+    } else if (progress >= 0.79) {
+      return 0.1;
+      // return 0.2;
+    } else {
+      return 0.05;
+    }
+  };
+
+  const cloudRef = useRef(null);
+  const sculpture = useRef(null);
 
   useFrame((state, delta) => {
     const scrollProgressPixels = window.scrollY;
@@ -710,9 +761,13 @@ function Model(props) {
       const curve = cameraPositionPathData.current.curve;
       // console.log('curve.length: ', curve.getLength());
       const point = curve.getPoint(scrollProgress.current);
+      const pointAhead = curve.getPoint(
+        Math.min(scrollProgress.current + 0.02, 1)
+      );
       // console.log('pixels: ', getScrollPixelFromProgress(0.15784541015143294));
       // points are relative to curve global position so we need to add the camera position
       point.add(curvePosition);
+      pointAhead.add(curvePosition);
 
       const xPos = point.x - rotationTarget.current.y + (activeProject ? 1 : 0);
       const yPos = point.y + rotationTarget.current.x + (activeProject ? 1 : 0);
@@ -729,6 +784,16 @@ function Model(props) {
       const lookAtPosition = LOOK_AT_POSITIONS[lookAtKey];
 
       const target = camera.clone();
+
+      // if (scrollProgress.current >= 0.7) {
+      // target.lookAt(
+      //   new THREE.Vector3(
+      //     pointAhead.x + (activeProject ? 2 : 0),
+      //     pointAhead.y,
+      //     pointAhead.z
+      //   )
+      // );
+      // } else {
       target.lookAt(
         new THREE.Vector3(
           lookAtPosition.x + (activeProject ? 2 : 0),
@@ -736,8 +801,10 @@ function Model(props) {
           lookAtPosition.z
         )
       );
+      // }
 
-      const rotationSpeed = scrollProgress.current >= 0.79 ? 0.1 : 0.03;
+      const rotationSpeed = getRotationSpeed(scrollProgress.current);
+      // const rotationSpeed = scrollProgress.current >= 0.79 ? 0.1 : 0.03;
       camera.quaternion.slerp(target.quaternion, rotationSpeed);
       // camera.quaternion.slerp(target.quaternion, 0.025);
     }
@@ -748,25 +815,47 @@ function Model(props) {
       setShowEnd(false);
     }
 
-    raycaster.setFromCamera(mouse.current.world, camera);
-    const intersects = raycaster.intersectObjects([
-      canvas01.current,
-      canvas02.current,
-      canvas03.current,
-      canvas04.current,
-      canvas05.current,
-      canvas06.current,
-      canvas07.current,
-    ]);
+    // // use rotationTarget to rotate sculpture
+    // if (sculpture.current) {
+    //   // sculpture.current.rotation.x += 0.01;
+    //   sculpture.current.rotation.y += 0.01;
+    // }
 
-    if (intersects.length > 0 && intersects[0].distance < 10) {
-      setActiveCursor(true);
-    } else if (intersects.length) {
-      setActiveCursor(false);
-    }
+    // raycaster.setFromCamera(mouse.current.world, camera);
+    // const intersects = raycaster.intersectObjects([
+    //   canvas01.current,
+    //   canvas02.current,
+    //   canvas03.current,
+    //   canvas04.current,
+    //   canvas05.current,
+    //   canvas06.current,
+    //   canvas07.current,
+    // ]);
+
+    // if (intersects.length > 0 && intersects[0].distance < 10) {
+    //   setActiveCursor(true);
+    // } else if (intersects.length) {
+    //   setActiveCursor(false);
+    // }
     //  else {
     //   setActiveCursor(false);
     // }
+
+    // if (cloudRef.current) {
+    //   // rotate the cloud plane to face the camera
+    //   cloudRef.current.lookAt(camera.position);
+    // }
+
+    // if (sculpture.current) {
+    //   sculpture.current.lookAt(camera.position);
+    // }
+    if (scrollProgress.current === 1) {
+      setIsAtEnd(true);
+      setIsScrollLocked(true);
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }, 250);
+    }
   });
 
   const waterBack = useRef(null);
@@ -795,6 +884,13 @@ function Model(props) {
   //   return texture;
   // }, []);
 
+  const sculptureUniforms = useMemo(
+    () => ({
+      uTexture: { value: new THREE.TextureLoader().load(logoImg) },
+    }),
+    []
+  );
+
   return (
     <>
       {/* <Stats /> */}
@@ -808,8 +904,39 @@ function Model(props) {
           /> */}
       <TitleTest />
       <Clouds />
+      {/* <CloudsLow /> */}
+      {/* <CloudsHorizon /> */}
+
+      {/* <Cloud
+        ref={cloudRef}
+        position={[-96.5, 5.5, -163.8]}
+        color="pink"
+        seed={1}
+        scale={2}
+      /> */}
+      {/* <Cloud position={[-96.5, 5.5, -163.8]} /> */}
+      {/* <Cloud
+        seed={2}
+        scale={1}
+        segments={16}
+        volume={10}
+        opacity={1}
+        // growth={0.5}
+        // speed={0.5}
+        // bounds={new THREE.Vector3(10, 10, 10).multiplyScalar(10).addScalar(10)}
+        color="white"
+        fade={100}
+        // position={[-96.5, 0, -163.8]}
+        position={[-5.41359, 3.56651711467, -30.5556]}
+      /> */}
+
+      {/* <mesh position={[-96.5, 0, -163.8]}>
+        <sphereGeometry args={[10, 32, 32]} />
+        <meshBasicMaterial color="red" />
+      </mesh> */}
       {showEnd && (
         <>
+          <CloudsLow />
           {/* <TitleEnd />
           <Bonsai /> */}
         </>
@@ -967,11 +1094,38 @@ function Model(props) {
           position={[0.183, 0, -19.383]}
         />
         <mesh
+          ref={sculpture}
           geometry={nodes.logoSculpture_Baked.geometry}
           material={materials.logoSculpture_Baked}
           position={[-5.387, 3.083, -30.796]}
+          // scale={[8, 8, 8]}
           rotation={[-2.359, 0.205, 0.281]}
-        />
+        >
+          {/* <planeGeometry args={[1.78, 1]} /> */}
+          {/* <shaderMaterial
+            key={uuidv4()}
+            uniforms={sculptureUniforms}
+            vertexShader={`
+            varying vec2 vUv;
+            void main() {
+              vUv = uv;
+              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+            `}
+            fragmentShader={`
+            uniform sampler2D uTexture;
+            varying vec2 vUv;
+            
+            void main() {
+              vec2 uv = vUv;
+              vec4 color = texture2D(uTexture, uv);
+              gl_FragColor = color;
+            }
+            `}
+            transparent={true}
+          /> */}
+          {/* <meshStandardMaterial color="lightgrey" /> */}
+        </mesh>
         <mesh
           geometry={nodes.circularRoomPool_Baked.geometry}
           material={materials.mainCircularRoomPool_Baked}
@@ -1047,8 +1201,9 @@ function Model(props) {
           material={materials.benches}
           position={[16.643, 0, -35.363]}
         />
-        <mesh
-          ref={canvas01}
+
+        {/* <mesh
+          // ref={canvas01}
           geometry={nodes.canvas001.geometry}
           material={materials.Canvas01}
           position={[12.013, 3.027, -53.04]}
@@ -1057,6 +1212,16 @@ function Model(props) {
           onPointerEnter={handleCanvasMouseEnter}
           onPointerMove={handleCanvasMouseEnter}
           onPointerLeave={handleCanvasMouseLeave}
+        /> */}
+        <CanvasProject
+          id={1}
+          geometry={nodes.canvas001.geometry}
+          material={materials.Canvas01}
+          position={[12.013, 3.027, -53.04]}
+          rotation={[0, -0.422, 0]}
+          handleClick={handleCanvasClick}
+          onEnter={handleCanvasMouseEnter}
+          onLeave={handleCanvasMouseLeave}
         />
         <mesh
           geometry={nodes.canvasBack002.geometry}
@@ -1064,8 +1229,8 @@ function Model(props) {
           position={[-0.787, 3, -72.638]}
           rotation={[0, 0.42, 0]}
         />
-        <mesh
-          ref={canvas02}
+        {/* <mesh
+          // ref={canvas02}
           geometry={nodes.canvas002.geometry}
           material={materials.Canvas02}
           position={[-0.787, 3.028, -72.638]}
@@ -1074,6 +1239,16 @@ function Model(props) {
           onPointerEnter={handleCanvasMouseEnter}
           onPointerMove={handleCanvasMouseEnter}
           onPointerLeave={handleCanvasMouseLeave}
+        /> */}
+        <CanvasProject
+          id={2}
+          geometry={nodes.canvas002.geometry}
+          material={materials.Canvas02}
+          position={[-0.787, 3.028, -72.638]}
+          rotation={[0, 0.42, 0]}
+          handleClick={handleCanvasClick}
+          onEnter={handleCanvasMouseEnter}
+          onLeave={handleCanvasMouseLeave}
         />
         <mesh
           geometry={nodes.canvasBack003.geometry}
@@ -1081,8 +1256,8 @@ function Model(props) {
           position={[10.63, 3, -92.398]}
           rotation={[0, -0.454, 0]}
         />
-        <mesh
-          ref={canvas03}
+        {/* <mesh
+          // ref={canvas03}
           geometry={nodes.canvas003.geometry}
           material={materials.Canvas03}
           position={[10.63, 3.03, -92.398]}
@@ -1091,6 +1266,16 @@ function Model(props) {
           onPointerEnter={handleCanvasMouseEnter}
           onPointerMove={handleCanvasMouseEnter}
           onPointerLeave={handleCanvasMouseLeave}
+        /> */}
+        <CanvasProject
+          id={3}
+          geometry={nodes.canvas003.geometry}
+          material={materials.Canvas03}
+          position={[10.63, 3.03, -92.398]}
+          rotation={[0, -0.454, 0]}
+          handleClick={handleCanvasClick}
+          onEnter={handleCanvasMouseEnter}
+          onLeave={handleCanvasMouseLeave}
         />
         <mesh
           geometry={nodes.canvasBack004.geometry}
@@ -1098,8 +1283,8 @@ function Model(props) {
           position={[-10.216, 3, -110.056]}
           rotation={[0, 0.556, 0]}
         />
-        <mesh
-          ref={canvas04}
+        {/* <mesh
+          // ref={canvas04}
           geometry={nodes.canvas004.geometry}
           material={materials.Canvas04}
           position={[-10.216, 3.038, -110.056]}
@@ -1108,6 +1293,16 @@ function Model(props) {
           onPointerEnter={handleCanvasMouseEnter}
           onPointerMove={handleCanvasMouseEnter}
           onPointerLeave={handleCanvasMouseLeave}
+        /> */}
+        <CanvasProject
+          id={4}
+          geometry={nodes.canvas004.geometry}
+          material={materials.Canvas04}
+          position={[-10.216, 3.038, -110.056]}
+          rotation={[0, 0.556, 0]}
+          handleClick={handleCanvasClick}
+          onEnter={handleCanvasMouseEnter}
+          onLeave={handleCanvasMouseLeave}
         />
         <mesh
           geometry={nodes.canvasBack005.geometry}
@@ -1115,8 +1310,8 @@ function Model(props) {
           position={[-30.974, 3, -89.757]}
           rotation={[-Math.PI, 0.793, -Math.PI]}
         />
-        <mesh
-          ref={canvas05}
+        {/* <mesh
+          // ref={canvas05}
           geometry={nodes.canvas005.geometry}
           material={materials.Canvas05}
           position={[-30.974, 3.021, -89.757]}
@@ -1125,6 +1320,16 @@ function Model(props) {
           onPointerEnter={handleCanvasMouseEnter}
           onPointerMove={handleCanvasMouseEnter}
           onPointerLeave={handleCanvasMouseLeave}
+        /> */}
+        <CanvasProject
+          id={5}
+          geometry={nodes.canvas005.geometry}
+          material={materials.Canvas05}
+          position={[-30.974, 3.021, -89.757]}
+          rotation={[-Math.PI, 0.793, -Math.PI]}
+          handleClick={handleCanvasClick}
+          onEnter={handleCanvasMouseEnter}
+          onLeave={handleCanvasMouseLeave}
         />
         <mesh
           geometry={nodes.canvasBack006.geometry}
@@ -1132,8 +1337,8 @@ function Model(props) {
           position={[-59.154, 3, -98.602]}
           rotation={[0, 1.476, 0]}
         />
-        <mesh
-          ref={canvas06}
+        {/* <mesh
+          // ref={canvas06}
           geometry={nodes.canvas006.geometry}
           material={materials.Canvas06}
           position={[-59.154, 3.028, -98.602]}
@@ -1142,6 +1347,16 @@ function Model(props) {
           onPointerEnter={handleCanvasMouseEnter}
           onPointerMove={handleCanvasMouseEnter}
           onPointerLeave={handleCanvasMouseLeave}
+        /> */}
+        <CanvasProject
+          id={6}
+          geometry={nodes.canvas006.geometry}
+          material={materials.Canvas06}
+          position={[-59.154, 3.028, -98.602]}
+          rotation={[0, 1.476, 0]}
+          handleClick={handleCanvasClick}
+          onEnter={handleCanvasMouseEnter}
+          onLeave={handleCanvasMouseLeave}
         />
         <mesh
           geometry={nodes.canvasBack007.geometry}
@@ -1149,8 +1364,8 @@ function Model(props) {
           position={[-64.587, 3, -118.668]}
           rotation={[0, 0.714, 0]}
         />
-        <mesh
-          ref={canvas07}
+        {/* <mesh
+          // ref={canvas07}
           geometry={nodes.canvas007.geometry}
           material={materials.Canvas07}
           position={[-64.587, 3.039, -118.668]}
@@ -1159,6 +1374,16 @@ function Model(props) {
           onPointerEnter={handleCanvasMouseEnter}
           onPointerMove={handleCanvasMouseEnter}
           onPointerLeave={handleCanvasMouseLeave}
+        /> */}
+        <CanvasProject
+          id={7}
+          geometry={nodes.canvas007.geometry}
+          material={materials.Canvas07}
+          position={[-64.587, 3.039, -118.668]}
+          rotation={[0, 0.714, 0]}
+          handleClick={handleCanvasClick}
+          onEnter={handleCanvasMouseEnter}
+          onLeave={handleCanvasMouseLeave}
         />
         <mesh
           geometry={nodes.sphere002.geometry}
@@ -1258,7 +1483,7 @@ function Model(props) {
           rotation={[0, 1.252, 0]}
           scale={42.295}
         /> */}
-        <mesh
+        {/* <mesh
           geometry={nodes.island006.geometry}
           material={materials['rock.001']}
           position={[10.547, -0.223, -225.383]}
@@ -1278,7 +1503,7 @@ function Model(props) {
           position={[22.29, -1.914, -185.296]}
           rotation={[0, -0.628, 0]}
           scale={42.295}
-        />
+        /> */}
         {/* {showEnd && (
           <mesh
             geometry={nodes.islandSphere.geometry}

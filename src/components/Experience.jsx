@@ -10,6 +10,7 @@ import {
   Sky,
   Stars,
   Stats,
+  useProgress,
 } from '@react-three/drei';
 import { GlitchEffect, GlitchMode, BlendFunction } from 'postprocessing';
 import { Perf } from 'r3f-perf';
@@ -37,7 +38,7 @@ import {
   Noise,
   Pixelation,
 } from '@react-three/postprocessing';
-import { useFrame, useThree } from '@react-three/fiber';
+import { useFrame, useLoader, useThree } from '@react-three/fiber';
 import SkySphere from './SkySphere';
 
 const params = {
@@ -47,6 +48,14 @@ const params = {
 };
 
 function Experience() {
+  // const { progress, errors, active, item, loaded, total } = useProgress();
+
+  // useEffect(() => {
+  //   console.log('progress', progress);
+  //   console.log('item', item);
+  //   console.log('loaded', loaded);
+  //   console.log('total', total);
+  // }, []);
   // const fog = useMemo(() => {
   //   const fog = new THREE.FogExp2(params.fogHorizonColor, params.fogDensity);
   //   return fog;
@@ -61,6 +70,11 @@ function Experience() {
   //   //   fogInstance.dispose();
   //   // };
   // }, []);
+
+  // useFrame(() => {
+  //   console.log('loaded', loaded);
+  //   console.log('total', total);
+  // });
 
   return (
     <>

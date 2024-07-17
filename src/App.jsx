@@ -21,7 +21,7 @@ import {
 import { BlendFunction } from 'postprocessing';
 import { useControls } from 'leva';
 import Header from './components/Header';
-import { Loader, PerformanceMonitor, ScrollControls } from '@react-three/drei';
+import { PerformanceMonitor, ScrollControls } from '@react-three/drei';
 import Cursor from './components/Cursor';
 import Title from './components/Title';
 import ProjectTitle from './components/projects/ProjectTitle';
@@ -30,6 +30,11 @@ import Projects from './components/projects/Projects';
 import { create } from 'zustand';
 import { toneMappingExposure } from 'three/examples/jsm/nodes/display/ToneMappingNode.js';
 import Footer from './components/footer/Footer';
+import ScrollToTop from './components/scrollToTop/ScrollToTop';
+import LoaderCustom from './components/loader/LoaderCustom';
+import EndingOverlay from './components/endingOverlay/EndingOverlay';
+import ProjectsOverview from './components/overview/ProjectsOverview';
+import Menu02 from './components/menu02/Menu02';
 
 // const PERSPECTIVE = 800;
 // const FOV =
@@ -48,7 +53,24 @@ export const useStore = create((set) => ({
   setActiveProject: (value) => set(() => ({ activeProject: value })),
   activeCursor: false,
   setActiveCursor: (value) => set(() => ({ activeCursor: value })),
+  loadingManager: null,
+  setLoadingManager: (value) => set(() => ({ loadingManager: value })),
+  totalAssets: 55,
+  isLoaded: true,
+  setIsLoaded: (value) => set(() => ({ isLoaded: value })),
+  isAtEnd: false,
+  setIsAtEnd: (value) => set(() => ({ isAtEnd: value })),
+  isScrollLocked: false,
+  setIsScrollLocked: (value) => set(() => ({ isScrollLocked: value })),
+  isOverviewShown: false,
+  setIsOverviewShown: (value) => set(() => ({ isOverviewShown: value })),
+  isMenuOpen: true,
+  setIsMenuOpen: (value) => set(() => ({ isMenuOpen: value })),
+  lenis: null,
+  setLenis: (value) => set(() => ({ lenis: value })),
 }));
+
+// const TOTAL_ASSETS = 55;
 
 const TONE_MAPPING = {
   toneMappingType: THREE.ReinhardToneMapping,
@@ -56,6 +78,12 @@ const TONE_MAPPING = {
 };
 
 function App() {
+  const isLoaded = useStore((state) => state.isLoaded);
+  const isScrollLocked = useStore((state) => state.isScrollLocked);
+  const isOverviewShown = useStore((state) => state.isOverviewShown);
+  const isMenuOpen = useStore((state) => state.isMenuOpen);
+  const setLenis = useStore((state) => state.setLenis);
+
   const lenis = useRef(null);
   // const { toneMappingExposure, toneMappingType } = useControls(
   //   'Tone Mapping',
@@ -88,6 +116,7 @@ function App() {
       // duration: 2,
       // wheelMultiplier: 0.5,
     });
+    setLenis(lenis.current);
 
     function raf(time) {
       lenis.current.raf(time);
@@ -99,7 +128,19 @@ function App() {
     return () => {
       lenis.current.destroy();
     };
-  }, []);
+  }, [setLenis]);
+
+  useEffect(() => {
+    if (isScrollLocked || !isLoaded || isMenuOpen) {
+      console.log('lenis stopped');
+      lenis.current.stop();
+    } else {
+      // console.log('isScrollLocked', isScrollLocked);
+      // console.log('isLoaded', isLoaded);
+      console.log('lenis started');
+      lenis.current.start();
+    }
+  }, [isLoaded, isMenuOpen, isScrollLocked]);
 
   useEffect(() => {
     window.scrollTo({
@@ -109,10 +150,56 @@ function App() {
     });
   }, []);
 
+  // useEffect(() => {
+  //   // const loadingManager = new THREE.LoadingManager();
+  //   // useStore.setState({ setLoadingManager: loadingManager });
+
+  //   THREE.DefaultLoadingManager.onStart = function (
+  //     url,
+  //     itemsLoaded,
+  //     itemsTotal
+  //   ) {
+  //     console.log(
+  //       'Started loading file: ' +
+  //         url +
+  //         '.\nLoaded ' +
+  //         itemsLoaded +
+  //         ' of ' +
+  //         itemsTotal +
+  //         ' files.'
+  //     );
+  //   };
+
+  //   THREE.DefaultLoadingManager.onLoad = function () {
+  //     console.log('Loading Complete!');
+  //   };
+
+  //   THREE.DefaultLoadingManager.onProgress = function (
+  //     url,
+  //     itemsLoaded,
+  //     itemsTotal
+  //   ) {
+  //     console.log(
+  //       'Loading file: ' +
+  //         url +
+  //         '.\nLoaded ' +
+  //         itemsLoaded +
+  //         ' of ' +
+  //         itemsTotal +
+  //         ' files.'
+  //     );
+  //   };
+
+  //   THREE.DefaultLoadingManager.onError = function (url) {
+  //     console.log('There was an error loading ' + url);
+  //   };
+  // }, []);
+
   const [dpr, setDpr] = useState(1);
 
   return (
     <>
+      {/* {!isLoaded && <LoaderCustom />} */}
       <div className="fixed left-0 top-0 h-screen w-full">
         <Canvas
           shadows
@@ -144,18 +231,22 @@ function App() {
             {/* </ScrollControls> */}
           </Suspense>
         </Canvas>
+        {/* <Loader /> */}
       </div>
       <div>
         <Header />
         {/* <Instructions /> */}
         {/* <Title /> */}
         <Projects />
+        <EndingOverlay />
+        <Menu02 />
         <Cursor />
       </div>
       <div className="main pointer-events-none relative z-[9] h-[2000vh] w-full">
-        <div className="h-[1900vh] w-full"></div>
-        <Footer />
+        <div className="h-[2000vh] w-full"></div>
+        {/* <Footer /> */}
       </div>
+      <ScrollToTop />
     </>
   );
 }

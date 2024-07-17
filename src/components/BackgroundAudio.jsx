@@ -20,6 +20,7 @@ function BackgroundAudio() {
     } else {
       audio.play();
     }
+    // console.log('audio.paused', audio.paused);
   };
 
   const handleVisibilityChange = () => {
@@ -45,6 +46,9 @@ function BackgroundAudio() {
     };
   }, []);
 
+  // useEffect(() => {
+  //   console.log('audio.paused', audio.paused);
+  // }, []);
   // useEffect(() => {
   //   const handleClick = () => {
   //     if (initialAudio) return;

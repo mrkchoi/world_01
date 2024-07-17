@@ -22,7 +22,7 @@ function WaterSurfaces() {
         <FluidSim radius={0.0005} />
         {/* <FluidSim radius={0.00025} /> */}
       </WaterSurfaceSimple>
-      <WaterSurfaceSimple
+      {/* <WaterSurfaceSimple
         width={175}
         length={175}
         distortionScale={1}
@@ -32,14 +32,14 @@ function WaterSurfaces() {
         position={[-150, -0.1, -220]}
       >
         <FluidSim radius={0.0005} />
-      </WaterSurfaceSimple>
-      <WaterSurfaceSimple
+      </WaterSurfaceSimple> */}
+      {/* <WaterSurfaceSimple
         distortionScale={1}
         fxDistortionFactor={0.1}
         // fxDistortionFactor={0.01}
         speed={0.2}
         position={[100, -0.05, -200]}
-      ></WaterSurfaceSimple>
+      ></WaterSurfaceSimple> */}
       <WaterSurfaceSimple
         position={[-38.268, 0.3, -114.098]}
         geometry={waterInteriorGeometry}

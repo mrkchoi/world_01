@@ -1,21 +1,11 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
+import { PROJECTS_DATA } from '../../data/projects';
+import ProjectsOverviewItem from './ProjectsOverviewItem';
+import gsap from 'gsap';
 
-function Footer() {
-  const handleScrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    });
-  };
-
+function About() {
   return (
-    <div className="pointer-events-auto relative flex h-[100vh] w-full flex-col items-center justify-around bg-white p-12">
-      <div className="">
-        <span className="text-center text-9xl font-bold uppercase">
-          <span className="block">Let's Work</span>
-          <span className="block">Together!</span>
-        </span>
-      </div>
+    <div className="pointer-events-auto relative flex h-full w-full flex-col items-center justify-start p-12">
       <div className="grid w-full grid-cols-12 text-xl">
         <div className="col-span-3 col-start-2 flex flex-col">
           <span>San Francisco, CA</span>
@@ -89,4 +79,4 @@ function Footer() {
   );
 }
 
-export default Footer;
+export default About;

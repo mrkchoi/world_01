@@ -233,6 +233,8 @@ function TitleTest() {
           }
         `}
           transparent={true}
+          depthTest={false}
+          depthWrite={false}
         />
       </mesh>
     </>

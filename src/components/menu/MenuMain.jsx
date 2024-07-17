@@ -1,12 +1,15 @@
 import { useGSAP } from '@gsap/react';
 import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
+import { useStore } from '../../App';
 
-function MenuMain({ handleClick, menuOpen }) {
+function MenuMain({ toggleMenu, menuOpen }) {
   const menuRef = useRef(null);
   const items01 = useRef(null);
   const items02 = useRef(null);
   const items03 = useRef(null);
+  const isOverviewShown = useStore((state) => state.isOverviewShown);
+  const setIsOverviewShown = useStore((state) => state.setIsOverviewShown);
 
   useEffect(() => {
     if (menuOpen) {
@@ -14,7 +17,7 @@ function MenuMain({ handleClick, menuOpen }) {
     } else {
       menuRef.current.classList.remove('menu__open');
     }
-    console.log(menuOpen);
+    // console.log(menuOpen);
   }, [menuOpen]);
 
   useGSAP(() => {
@@ -29,23 +32,53 @@ function MenuMain({ handleClick, menuOpen }) {
         // rotate: 0,
         opacity: 1,
         pointerEvents: 'auto',
-        ease: 'power4.inOut',
       });
       tl.to(
-        [items01.current, items02.current],
+        [buttonText01.current, buttonText02.current],
         {
-          opacity: 1,
           y: 0,
-          stagger: 0.025,
+          opacity: 1,
+          duration: 0.75,
+          // stagger: 0.025,
         },
-        '-=0.8'
+        '-=0.75'
+      );
+      tl.to(
+        [buttonText03.current, buttonText04.current],
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.75,
+          // stagger: 0.025,
+        },
+        '<'
+      );
+      tl.to(
+        [buttonText05.current, buttonText06.current, buttonText07.current],
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.75,
+          // stagger: 0.025,
+        },
+        '<'
       );
     } else {
-      tl.to([items01.current, items02.current], {
-        opacity: 0,
-        y: 25,
-        stagger: -0.05,
-      });
+      tl.to(
+        [
+          buttonText01.current,
+          buttonText02.current,
+          buttonText03.current,
+          buttonText04.current,
+          buttonText05.current,
+          buttonText06.current,
+          buttonText07.current,
+        ],
+        {
+          y: '125%',
+          opacity: 0,
+        }
+      );
       tl.to(
         menuRef.current,
         {
@@ -54,20 +87,44 @@ function MenuMain({ handleClick, menuOpen }) {
           opacity: 0,
           pointerEvents: 'none',
           // rotate: 2,
-          ease: 'power4.inOut',
         },
         '<'
       );
     }
   }, [menuOpen]);
 
-  const handleClickAbout = () => {
+  const handleClickHome = () => {
+    toggleMenu();
     window.scrollTo({
-      top: document.body.scrollHeight,
+      top: 0,
       left: 0,
       behavior: 'smooth',
     });
   };
+  const handleClickAbout = () => {
+    toggleMenu();
+    // window.scrollTo({
+    //   top: document.body.scrollHeight,
+    //   left: 0,
+    //   behavior: 'smooth',
+    // });
+  };
+  const handleClickProjects = () => {
+    if (isOverviewShown) {
+      setIsOverviewShown(false);
+    } else {
+      setIsOverviewShown(true);
+    }
+    toggleMenu();
+  };
+
+  const buttonText01 = useRef(null);
+  const buttonText02 = useRef(null);
+  const buttonText03 = useRef(null);
+  const buttonText04 = useRef(null);
+  const buttonText05 = useRef(null);
+  const buttonText06 = useRef(null);
+  const buttonText07 = useRef(null);
 
   return (
     <div
@@ -78,78 +135,91 @@ function MenuMain({ handleClick, menuOpen }) {
       <div ref={items01} className="mb-8">
         <ul className="flex flex-col">
           <li>
-            <button className="menuText__btn relative flex w-full items-center justify-between rounded-full p-2 pl-5 pr-5 text-left text-3xl font-medium uppercase">
-              <span className="menuText__wrapper">
-                <span className="menuText__main">overview</span>
-                <span className="menuText__secondary">overview</span>
-              </span>
-              <span className="menuText__iconWrapper">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  className="menuText__icon menuText__icon--primary"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"
-                  />
-                </svg>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  className="menuText__icon menuText__icon--secondary"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"
-                  />
-                </svg>
-              </span>
+            <button
+              className="menuText__btn relative w-full overflow-hidden rounded-full p-2 pl-5 pr-5 text-left text-3xl font-medium lowercase"
+              onClick={handleClickProjects}
+            >
+              <div
+                ref={buttonText01}
+                className="flex w-full items-center justify-between"
+              >
+                <span className="menuText__wrapper">
+                  <span className="menuText__main">projects</span>
+                  <span className="menuText__secondary">projects</span>
+                </span>
+                <span className="menuText__iconWrapper">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    className="menuText__icon menuText__icon--primary"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"
+                    />
+                  </svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    className="menuText__icon menuText__icon--secondary"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"
+                    />
+                  </svg>
+                </span>
+              </div>
             </button>
           </li>
           <li>
             <button
-              className="menuText__btn flex w-full items-center justify-between rounded-full p-2 pl-5 pr-5 text-left text-3xl font-medium uppercase"
+              className="menuText__btn w-full overflow-hidden rounded-full p-2 pl-5 pr-5 text-left text-3xl font-medium lowercase"
               onClick={handleClickAbout}
             >
-              <span className="menuText__wrapper">
-                <span className="menuText__main">about</span>
-                <span className="menuText__secondary">about</span>
-              </span>
-              <span className="menuText__iconWrapper">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  className="menuText__icon menuText__icon--primary"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"
-                  />
-                </svg>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  className="menuText__icon menuText__icon--secondary"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"
-                  />
-                </svg>
-              </span>
+              <div
+                ref={buttonText02}
+                className="flex w-full items-center justify-between"
+              >
+                <span className="menuText__wrapper">
+                  <span className="menuText__main">about</span>
+                  <span className="menuText__secondary">about</span>
+                </span>
+                <span className="menuText__iconWrapper">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    className="menuText__icon menuText__icon--primary"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"
+                    />
+                  </svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    className="menuText__icon menuText__icon--secondary"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"
+                    />
+                  </svg>
+                </span>
+              </div>
             </button>
           </li>
         </ul>
@@ -161,56 +231,76 @@ function MenuMain({ handleClick, menuOpen }) {
       >
         <ul className="text-md flex flex-col">
           <li>
-            <a
-              href="mailto:kennethichoi@gmail.com"
-              target="_blank"
-              rel="noreferrer"
-              className="block pl-5 pr-5"
-            >
-              <span>kennethichoi@gmail.com</span>
-            </a>
+            <div className="relative overflow-hidden pl-5 pr-5">
+              <div ref={buttonText03}>
+                <a
+                  href="mailto:kennethichoi@gmail.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="menu__btn--underline"
+                >
+                  <span>kennethichoi@gmail.com</span>
+                </a>
+              </div>
+            </div>
           </li>
           <li>
-            <a
-              href="tel:4082393088"
-              target="_blank"
-              rel="noreferrer"
-              className="block pl-5 pr-5"
-            >
-              <span>+1 (408) 239-3088</span>
-            </a>
+            <div className="relative overflow-hidden pl-5 pr-5">
+              <div ref={buttonText04}>
+                <a
+                  href="tel:4082393088"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="menu__btn--underline"
+                >
+                  <span>+1 (408) 239-3088</span>
+                </a>
+              </div>
+            </div>
           </li>
         </ul>
         <ul className="mr-5 flex flex-col">
           <li>
-            <a
-              href="https://www.google.com"
-              target="_blank"
-              rel="noreferrer"
-              className="block text-sm uppercase"
-            >
-              <span>linkedin</span>
-            </a>
+            <div className="relative overflow-hidden pl-5 pr-5">
+              <div ref={buttonText05}>
+                <a
+                  href="https://www.google.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="menu__btn--underline text-sm lowercase"
+                >
+                  <span>linkedin</span>
+                </a>
+              </div>
+            </div>
           </li>
           <li>
-            <a
-              href="https://www.google.com"
-              target="_blank"
-              rel="noreferrer"
-              className="block text-sm uppercase"
-            >
-              <span>github</span>
-            </a>
+            <div className="relative overflow-hidden pl-5 pr-5">
+              <div ref={buttonText06}>
+                <a
+                  href="https://www.google.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="menu__btn--underline text-sm lowercase"
+                >
+                  <span>github</span>
+                </a>
+              </div>
+            </div>
           </li>
           <li>
-            <a
-              href="https://www.google.com"
-              target="_blank"
-              rel="noreferrer"
-              className="block text-sm uppercase"
-            >
-              <span>resume</span>
-            </a>
+            <div className="relative overflow-hidden pl-5 pr-5">
+              <div ref={buttonText07}>
+                <a
+                  href="https://www.google.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="menu__btn--underline text-sm lowercase"
+                >
+                  <span>resume</span>
+                </a>
+              </div>
+            </div>
           </li>
         </ul>
       </div>

@@ -8,9 +8,28 @@ body::-webkit-scrollbar {
   display: none;
 }
 
-/* .main {
-  scroll-behavior: smooth;
-} */
+/* LENIS SETUP - START */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+/* LENIS SETUP - END */
 
 /* CUSTOM CURSOR - START */
 .circle {
@@ -295,4 +314,166 @@ body::-webkit-scrollbar {
 }
 .projectBtn:hover .menuBtn__text--secondary {
   transform: translate3d(0, 0, 0);
+}
+
+/* SCROLL TO TOP BUTTON - START */
+.scrollBtn__wrapper {
+  position: relative;
+  overflow: hidden;
+  /* border: 1px solid black; */
+  display: block;
+}
+.scrollBtn__wrapper span {
+  will-change: transform;
+  transition: transform 0.25s ease-in-out;
+  display: block;
+  /* border: 1px solid black; */
+  line-height: 1.1;
+}
+.scrollBtn__main {
+  position: relative;
+  /* color: blue; */
+}
+.scrollBtn__secondary {
+  position: absolute;
+  transform: translate3d(0, 125%, 0);
+  color: #88898c;
+  left: 0;
+  top: 0;
+}
+
+.scrollBtn__btn:hover .scrollBtn__main {
+  transform: translate3d(0, -125%, 0);
+}
+.scrollBtn__btn:hover .scrollBtn__secondary {
+  transform: translate3d(0, 0, 0);
+}
+/* SCROLL TO TOP BUTTON - END */
+
+/* .progressBar {
+  background: linear-gradient(to right, #bdccd7, #bdccd7);
+} */
+
+/* LOADER - START */
+.loaderMain {
+  /* background-color: rgba(239, 222, 217, 255); */
+  background-color: rgba(240, 240, 240, 255);
+}
+.loaderBtn {
+  background-color: rgb(0, 0, 0);
+  will-change: transform;
+  transition: all 0.25s ease-in-out;
+  font-weight: 600;
+}
+.loaderBtn:hover {
+  background-color: rgb(255, 255, 255);
+  color: rgb(40, 40, 40);
+}
+.loaderBtn__textWrapper {
+  position: relative;
+  overflow: hidden;
+  /* border: 1px solid black; */
+  display: block;
+}
+.loaderBtn__textWrapper span {
+  will-change: transform;
+  transition: transform 0.25s ease-in-out;
+  display: block;
+  /* border: 1px solid black; */
+  /* line-height: 1.1; */
+}
+.loaderBtn__text--primary {
+  position: relative;
+}
+.loaderBtn__text--secondary {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  transform: translate3d(0, 100%, 0);
+}
+
+.loaderBtn:hover .loaderBtn__text--primary {
+  transform: translate3d(0, -100%, 0);
+}
+.loaderBtn:hover .loaderBtn__text--secondary {
+  transform: translate3d(0, 0, 0);
+}
+/* LOADER - END */
+
+/* OVERVIEW/PROJECTS - START */
+.projectMenu {
+}
+.projectMenuItem {
+  mix-blend-mode: difference;
+  color: white;
+  fill: white;
+  stroke: white;
+  border-bottom: 1px solid rgb(40, 40, 40);
+}
+.projectMenuItem:last-of-type {
+  border-bottom: none;
+}
+.projectMenuItem__background {
+  will-change: transform;
+  background-color: rgba(255, 255, 255, 1);
+  mix-blend-mode: difference;
+}
+.projectMenuItem__text {
+  will-change: transform;
+  transition: all 0.1s ease-in-out;
+}
+.projectMenuItem__icon {
+  will-change: transform;
+  transition: all 0.1s ease-in-out;
+  /* stroke: rgb(40, 40, 40);
+  fill: rgb(40, 40, 40); */
+}
+.projectMenuItem:hover .projectMenuItem__text {
+  /* color: rgb(240, 240, 240); */
+  color: rgb(40, 40, 40);
+}
+.projectMenuItem:hover .projectMenuItem__icon {
+  stroke: rgb(40, 40, 40);
+  fill: rgb(40, 40, 40);
+  /* stroke: rgb(240, 240, 240);
+  fill: rgb(240, 240, 240); */
+}
+.projectMenu {
+}
+.projectMenu {
+}
+.projectMenu {
+}
+.projectsMenu__imgWrapper {
+  z-index: -1;
+  pointer-events: none;
+  /* position: absolute;
+  bottom: 0;
+  right: 0;
+  opacity: 0; */
+}
+.projectsMenu__img {
+  max-height: min(30vw, 30vh, 400px);
+}
+/* OVERVIEW/PROJECTS - END */
+
+.menuTitleWrapper {
+  line-height: 1;
+  padding-top: 8rem;
+  padding-bottom: 8rem;
+  /* border: 1px solid black; */
+}
+
+.contact__text {
+  line-height: 1.4;
+  font-size: 1.1rem;
+  position: relative;
+  display: inline-block;
+}
+.contact__links {
+  line-height: 1.4;
+  font-size: 1rem;
+  text-transform: uppercase;
+  display: block;
 }
